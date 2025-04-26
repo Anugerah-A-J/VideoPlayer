@@ -1,15 +1,34 @@
-#include <QApplication>
-#include <QStyleHints>
+#include "player.h"
 
-#include "VideoPlayer.h"
+#include <QApplication>
+#include <QCommandLineOption>
+#include <QCommandLineParser>
+#include <QDir>
+#include <QUrl>
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    app.styleHints()->setColorScheme(Qt::ColorScheme::Dark);
 
-    VideoPlayer videoPlayer;
-    videoPlayer.show();
-    
-    return QCoreApplication::exec();
+    QCoreApplication::setApplicationName("Player Example");
+    QCoreApplication::setOrganizationName("QtProject");
+    QCoreApplication::setApplicationVersion(QT_VERSION_STR);
+    QCommandLineParser parser;
+    parser.setApplicationDescription("Qt MultiMedia Player Example");
+    parser.addHelpOption();
+    parser.addVersionOption();
+    parser.addPositionalArgument("url", "The URL(s) to open.");
+    parser.process(app);
+
+    Player player;
+
+    if (!parser.positionalArguments().isEmpty() && player.isPlayerAvailable()) {
+        QList<QUrl> urls;
+        for (auto &a : parser.positionalArguments())
+            urls.append(QUrl::fromUserInput(a, QDir::currentPath()));
+        player.addToPlaylist(urls);
+    }
+
+    player.show();
+    return app.exec();
 }
