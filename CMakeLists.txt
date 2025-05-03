@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 REQUIRED COMPONENTS
 	Widgets
-	Multimedia
+	MultimediaWidgets
 )
 
 qt_standard_project_setup()
@@ -16,6 +16,7 @@ qt_standard_project_setup()
 add_link_options(-static-libstdc++ -static-libgcc)
 add_executable(VideoPlayer
     main.cpp
+    VideoWidget.cpp
 )
 
 set_target_properties(VideoPlayer PROPERTIES
@@ -25,7 +26,7 @@ set_target_properties(VideoPlayer PROPERTIES
 
 target_link_libraries(VideoPlayer PRIVATE
     Qt6::Widgets
-    Qt6::Multimedia
+    Qt6::MultimediaWidgets
 )
 
 if(MSVC)

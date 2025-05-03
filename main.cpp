@@ -1,34 +1,23 @@
-#include "player.h"
-
 #include <QApplication>
-#include <QCommandLineOption>
-#include <QCommandLineParser>
-#include <QDir>
-#include <QUrl>
+#include <QMediaPlayer>
+#include "VideoWidget.h"
+#include <QAudioOutput>
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    QCoreApplication::setApplicationName("Player Example");
-    QCoreApplication::setOrganizationName("QtProject");
-    QCoreApplication::setApplicationVersion(QT_VERSION_STR);
-    QCommandLineParser parser;
-    parser.setApplicationDescription("Qt MultiMedia Player Example");
-    parser.addHelpOption();
-    parser.addVersionOption();
-    parser.addPositionalArgument("url", "The URL(s) to open.");
-    parser.process(app);
+    QMediaPlayer player;
+    player.setSource(QUrl("./test.mp4"));
 
-    Player player;
+    VideoWidget videoWidget;
+    player.setVideoOutput(&videoWidget);
 
-    if (!parser.positionalArguments().isEmpty() && player.isPlayerAvailable()) {
-        QList<QUrl> urls;
-        for (auto &a : parser.positionalArguments())
-            urls.append(QUrl::fromUserInput(a, QDir::currentPath()));
-        player.addToPlaylist(urls);
-    }
+    QAudioOutput audioOutput;
+    player.setAudioOutput(&audioOutput);
 
-    player.show();
+    videoWidget.show();
+    player.play();
+
     return app.exec();
 }
