@@ -1,38 +1,37 @@
+// Copyright (C) 2017 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
+
+#include "videoplayer.h"
+
 #include <QApplication>
-#include <QMediaPlayer>
-#include "VideoWidget.h"
-#include <QAudioOutput>
-#include <QGraphicsVideoItem>
-#include <QGraphicsView>
+#include <QCommandLineOption>
+#include <QCommandLineParser>
+#include <QDir>
+#include <QUrl>
 
-void usingQVideoWidget(QMediaPlayer& player, VideoWidget& videoWidget)
-{
-    player.setVideoOutput(&videoWidget);
-    videoWidget.show();
-}
-
-void usingQGraphicsVideoItem(QMediaPlayer& player, QGraphicsView& graphicsView, QGraphicsVideoItem* graphicsItem)
-{
-    player.setVideoOutput(graphicsItem);
-    graphicsView.scene()->addItem(graphicsItem);
-    graphicsView.show();
-}
-
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
-    QMediaPlayer player;
-    player.setSource(QUrl("./test.mp4"));
-    QAudioOutput audioOutput;
-    player.setAudioOutput(&audioOutput);
 
-    VideoWidget videoWidget;
-    QGraphicsVideoItem graphicsItem;
-    QGraphicsView graphicsView;
+    QCoreApplication::setApplicationName("MyVideoPlayer");
+    // QCoreApplication::setOrganizationName("QtProject");
+    // QCoreApplication::setApplicationVersion(QT_VERSION_STR);
+    QCommandLineParser parser;
+    parser.setApplicationDescription("My Video Player");
+    parser.addHelpOption();
+    parser.addVersionOption();
+    parser.addPositionalArgument("url", "The URL to open.");
+    parser.process(app);
 
-    usingQVideoWidget(player, videoWidget);
-    // usingQGraphicsVideoItem(player, graphicsView, &graphicsItem); // segfault
+    VideoPlayer player;
 
-    player.play();
+    if (!parser.positionalArguments().isEmpty() && player.isPlayerAvailable()) {
+        const QUrl url = QUrl::fromUserInput(parser.positionalArguments().constFirst(),
+                                             QDir::currentPath(), QUrl::AssumeLocalFile);
+        player.load(url);
+    }
+
+    player.show();
+
     return app.exec();
 }

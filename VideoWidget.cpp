@@ -5,35 +5,32 @@
 VideoWidget::VideoWidget():
     showUI{false},
     count{0}
-    // ,
-    // playButton{
-    //     QPoint{0, 0},
-    //     QPoint{0, 12},
-    //     QPoint{8, 6}
-    // }
 {
     connect(&timer, &QTimer::timeout, this, QOverload<>::of(&VideoWidget::update));
     timer.start(1000/fps);
-    setMouseTracking(true);
+    // for(auto c : children())
+    //     dynamic_cast<QWidget*>(c)->setMouseTracking(true);
+        // dynamic_cast<QWidget*>(children()[0])->setMouseTracking(true);
 }
 
-void VideoWidget::mouseMoveEvent(QMouseEvent* event)
-{
-    qDebug() << "mouse moved!";
+// void VideoWidget::mouseMoveEvent(QMouseEvent* event)
+// {
+//     qDebug() << "mouse moved!";
 
-    if (event->position().x() < 0 || event->position().y() < 0)
-        showUI = false;
-    else
-    {
-        showUI = true;
-        count = 0;
-    }
+//     if (event->position().x() < 0 || event->position().y() < 0)
+//         showUI = false;
+//     else
+//     {
+//         showUI = true;
+//         count = 0;
+//     }
 
-    event->accept();
-}
+//     event->accept();
+// }
 
 void VideoWidget::paintEvent(QPaintEvent*)
 {
+    qDebug() << fps;
     // if (!showUI)
         return;
 
