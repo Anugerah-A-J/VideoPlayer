@@ -19,7 +19,9 @@
 #include <QWidget>
 #include <qnamespace.h>
 
-VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent)
+VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent),
+    showUI{false},
+    count{0}
 {
     m_mediaPlayer = new QMediaPlayer(this);
     const QSize screenGeometry = screen()->availableSize();
@@ -70,6 +72,8 @@ VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent)
     connect(m_mediaPlayer, &QMediaPlayer::positionChanged, this, &VideoPlayer::positionChanged);
     connect(m_mediaPlayer, &QMediaPlayer::durationChanged, this, &VideoPlayer::durationChanged);
 
+    connect(&timer, &QTimer::timeout, this, QOverload<>::of(&VideoPlayer::update));
+    timer.start(1000/fps);
     setMouseTracking(true);
     graphicsView->setAttribute(Qt::WA_TransparentForMouseEvents);
     load(QUrl("test.mp4"));
@@ -155,6 +159,26 @@ void VideoPlayer::rotateVideo(int angle)
 void VideoPlayer::mouseMoveEvent(QMouseEvent *event)
 {
     qDebug() << "mouse is moved!";
+}
+
+void VideoPlayer::paintEvent(QPaintEvent*)
+{
+    // if (!showUI)
+    //     return;
+
+    // count++;
+
+    // if (count == fps * showUIDuration)
+    //     showUI = false;
+
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.drawLine(QLine(0, 0, width(), height()));
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(QColor("#888888"));
+    // painter.setTransform(QTransform(1, 0, 0, -1, 1, 1));
+    // painter.translate(0, height());
+    // painter.drawConvexPolygon(playButton, 3);
 }
 
 #include "moc_videoplayer.cpp"
