@@ -50,7 +50,7 @@ private:
     QAudioOutput audioOutput;
     bool showUI;
     unsigned int count;
-    QTimer timer;
+    // QTimer timer;
 };
 
 constexpr unsigned int showUIDuration = 1; // in sec.

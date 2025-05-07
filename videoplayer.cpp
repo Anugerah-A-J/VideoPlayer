@@ -17,7 +17,9 @@
 #include <QStyle>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QSizePolicy>
 #include <qnamespace.h>
+#include <qsizepolicy.h>
 
 VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent),
     showUI{false},
@@ -29,19 +31,20 @@ VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent),
     m_videoItem->setSize(QSizeF(screenGeometry.width() / 3, screenGeometry.height() / 2));
 
     QGraphicsScene *scene = new QGraphicsScene(this);
-    QGraphicsView *graphicsView = new QGraphicsView(scene);
+    // QGraphicsView *graphicsView = new QGraphicsView(scene);
+    QGraphicsView *graphicsView = new QGraphicsView(scene, this);
 
     scene->addItem(m_videoItem);
 
-    QSlider *rotateSlider = new QSlider(Qt::Horizontal);
-    rotateSlider->setToolTip(tr("Rotate Video"));
-    rotateSlider->setRange(-180, 180);
-    rotateSlider->setValue(0);
+    // QSlider *rotateSlider = new QSlider(Qt::Horizontal);
+    // rotateSlider->setToolTip(tr("Rotate Video"));
+    // rotateSlider->setRange(-180, 180);
+    // rotateSlider->setValue(0);
 
-    connect(rotateSlider, &QAbstractSlider::valueChanged, this, &VideoPlayer::rotateVideo);
+    // connect(rotateSlider, &QAbstractSlider::valueChanged, this, &VideoPlayer::rotateVideo);
 
-    QAbstractButton *openButton = new QPushButton(tr("Open..."));
-    connect(openButton, &QAbstractButton::clicked, this, &VideoPlayer::openFile);
+    // QAbstractButton *openButton = new QPushButton(tr("Open..."));
+    // connect(openButton, &QAbstractButton::clicked, this, &VideoPlayer::openFile);
 
     m_playButton = new QPushButton;
     m_playButton->setEnabled(false);
@@ -54,16 +57,17 @@ VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent),
 
     connect(m_positionSlider, &QAbstractSlider::sliderMoved, this, &VideoPlayer::setPosition);
 
-    QBoxLayout *controlLayout = new QHBoxLayout;
+    // QBoxLayout *controlLayout = new QHBoxLayout;
+    QBoxLayout *controlLayout = new QVBoxLayout(this);
     controlLayout->setContentsMargins(0, 0, 0, 0);
-    controlLayout->addWidget(openButton);
-    controlLayout->addWidget(m_playButton);
+    // controlLayout->addWidget(openButton);
     controlLayout->addWidget(m_positionSlider);
+    controlLayout->addWidget(m_playButton);
 
-    QBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(graphicsView);
-    layout->addWidget(rotateSlider);
-    layout->addLayout(controlLayout);
+    // QBoxLayout *layout = new QVBoxLayout(this);
+    // layout->addWidget(graphicsView);
+    // layout->addWidget(rotateSlider);
+    // layout->addLayout(controlLayout);
 
     m_mediaPlayer->setVideoOutput(m_videoItem);
     m_mediaPlayer->setAudioOutput(&audioOutput);
@@ -72,10 +76,11 @@ VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent),
     connect(m_mediaPlayer, &QMediaPlayer::positionChanged, this, &VideoPlayer::positionChanged);
     connect(m_mediaPlayer, &QMediaPlayer::durationChanged, this, &VideoPlayer::durationChanged);
 
-    connect(&timer, &QTimer::timeout, this, QOverload<>::of(&VideoPlayer::update));
-    timer.start(1000/fps);
+    // connect(&timer, &QTimer::timeout, this, QOverload<>::of(&VideoPlayer::update));
+    // timer.start(1000/fps);
     setMouseTracking(true);
     graphicsView->setAttribute(Qt::WA_TransparentForMouseEvents);
+    graphicsView->fitInView(m_videoItem, Qt::KeepAspectRatio);
     load(QUrl("test.mp4"));
     play();
 }
@@ -164,7 +169,7 @@ void VideoPlayer::mouseMoveEvent(QMouseEvent *event)
 void VideoPlayer::paintEvent(QPaintEvent*)
 {
     // if (!showUI)
-    //     return;
+        return;
 
     // count++;
 
