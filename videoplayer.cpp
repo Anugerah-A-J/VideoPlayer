@@ -18,10 +18,12 @@
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QSizePolicy>
+#include <qgraphicsview.h>
 #include <qnamespace.h>
 #include <qsizepolicy.h>
 
 VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent),
+    graphicsView{this},
     showUI{false},
     count{0}
 {
@@ -32,7 +34,7 @@ VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent),
 
     QGraphicsScene *scene = new QGraphicsScene(this);
     // QGraphicsView *graphicsView = new QGraphicsView(scene);
-    QGraphicsView *graphicsView = new QGraphicsView(scene, this);
+    graphicsView.setScene(scene);
 
     scene->addItem(m_videoItem);
 
@@ -64,8 +66,8 @@ VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent),
     controlLayout->addWidget(m_positionSlider);
     controlLayout->addWidget(m_playButton);
 
-    // QBoxLayout *layout = new QVBoxLayout(this);
-    // layout->addWidget(graphicsView);
+    QBoxLayout *layout = new QVBoxLayout(this);
+    layout->addWidget(&graphicsView);
     // layout->addWidget(rotateSlider);
     // layout->addLayout(controlLayout);
 
@@ -79,8 +81,7 @@ VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent),
     // connect(&timer, &QTimer::timeout, this, QOverload<>::of(&VideoPlayer::update));
     // timer.start(1000/fps);
     setMouseTracking(true);
-    graphicsView->setAttribute(Qt::WA_TransparentForMouseEvents);
-    graphicsView->fitInView(m_videoItem, Qt::KeepAspectRatio);
+    graphicsView.setAttribute(Qt::WA_TransparentForMouseEvents);
     load(QUrl("test.mp4"));
     play();
 }
@@ -185,5 +186,10 @@ void VideoPlayer::paintEvent(QPaintEvent*)
     // painter.translate(0, height());
     // painter.drawConvexPolygon(playButton, 3);
 }
+
+// void VideoPlayer::resizeEvent(QResizeEvent *event)
+// {
+//     graphicsView.fitInView(m_videoItem, Qt::KeepAspectRatio);
+// }
 
 #include "moc_videoplayer.cpp"

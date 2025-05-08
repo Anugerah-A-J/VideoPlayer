@@ -8,6 +8,7 @@
 #include <QWidget>
 #include <QAudioOutput>
 #include <QTimer>
+#include <QGraphicsView>
 
 QT_BEGIN_NAMESPACE
 class QAbstractButton;
@@ -42,12 +43,14 @@ private slots:
 private:
     void mouseMoveEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
+    // void resizeEvent(QResizeEvent *event) override;
     QMediaPlayer *m_mediaPlayer = nullptr;
     QGraphicsVideoItem *m_videoItem = nullptr;
     QAbstractButton *m_playButton = nullptr;
     QSlider *m_positionSlider = nullptr;
 
     QAudioOutput audioOutput;
+    QGraphicsView graphicsView;
     bool showUI;
     unsigned int count;
     // QTimer timer;
