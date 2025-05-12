@@ -2,7 +2,7 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
-#include "video.h"
+#include "video.hpp"
 
 static SDL_Window *window = nullptr;
 static SDL_Renderer *renderer = nullptr;
@@ -11,6 +11,12 @@ static Video *video = nullptr;
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
+    /* Create the window */
+    if (!SDL_CreateWindowAndRenderer("Hello World", 800, 600, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
+        SDL_Log("Couldn't create window and renderer: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
+
     if (argc <= 1) {
         fprintf(stderr, "Usage: %s <input file> <output file>\n"
                 "And check your input file is encoded by mpeg1video please.\n", argv[0]);
@@ -19,14 +25,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     // const char *filename = argv[1];
     const char *filename = "../test.mp4";
     video = new Video();
-    video->set_file(filename);
+    video->set_file(filename, window);
     // outfilename = argv[2];
- 
-    /* Create the window */
-    if (!SDL_CreateWindowAndRenderer("Hello World", 800, 600, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
-        SDL_Log("Couldn't create window and renderer: %s", SDL_GetError());
-        return SDL_APP_FAILURE;
-    }
 
     return SDL_APP_CONTINUE;
 }
