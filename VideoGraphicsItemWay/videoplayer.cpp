@@ -63,11 +63,12 @@ VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent),
     QBoxLayout *controlLayout = new QVBoxLayout(this);
     controlLayout->setContentsMargins(0, 0, 0, 0);
     // controlLayout->addWidget(openButton);
+    // controlLayout->addWidget(&graphicsView);
     controlLayout->addWidget(m_positionSlider);
     controlLayout->addWidget(m_playButton);
 
-    QBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(&graphicsView);
+    // QBoxLayout *layout = new QVBoxLayout(this);
+    // layout->addWidget(&graphicsView);
     // layout->addWidget(rotateSlider);
     // layout->addLayout(controlLayout);
 
