@@ -27,8 +27,10 @@ int main(int argc, char *argv[])
 
     VideoPlayer player;
     if (!parser.positionalArguments().isEmpty()) {
-        const QUrl url = QUrl::fromUserInput(parser.positionalArguments().constFirst(),
-                                             QDir::currentPath(), QUrl::AssumeLocalFile);
+        const QUrl url = QUrl::fromUserInput(
+            parser.positionalArguments().constFirst(),
+            QDir::currentPath(),
+            QUrl::AssumeLocalFile);
         player.setUrl(url);
     }
 
