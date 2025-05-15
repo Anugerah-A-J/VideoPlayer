@@ -18,8 +18,8 @@ VideoPlayer::ControlPanel::ControlPanel(QWidget *parent):
     playButton.setEnabled(false);
     playButton.setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
 
-    layout.addWidget(&positionSlider, 0, 0, 1, 5);
-    layout.addWidget(&playButton, 1, 2, 1, 1);
+    layout.addWidget(&positionSlider, 0, 0, 1, 1);
+    layout.addWidget(&playButton, 1, 0, 1, 1);
     setLayout(&layout);
 }
 
@@ -80,6 +80,8 @@ VideoPlayer::VideoPlayer(QWidget *parent):
         &VideoPlayer::mediaStateChanged);
     connect(&mediaPlayer, &QMediaPlayer::positionChanged, this, &VideoPlayer::positionChanged);
     connect(&mediaPlayer, &QMediaPlayer::durationChanged, this, &VideoPlayer::durationChanged);
+
+    controlPanel.setMaximumHeight(controlPanel.minimumHeight());
 
     load(QUrl("../test.mp4"));
     play();
