@@ -9,7 +9,8 @@
 
 VideoPlayer::ControlPanel::ControlPanel(QWidget *parent):
     QWidget{parent},
-    positionSlider{Qt::Horizontal}
+    positionSlider{Qt::Horizontal},
+    start{std::chrono::steady_clock::now()}
 {
     positionSlider.setRange(0, 0);
 
@@ -35,6 +36,8 @@ VideoPlayer::ControlPanel::ControlPanel(QWidget *parent):
     );
     setLayout(&layout);
     setMouseTracking(true);
+    positionSlider.hide();
+    playButton.hide();
 }
 
 VideoPlayer::VideoPlayer(QWidget *parent):
@@ -66,6 +69,8 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     graphicsView.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     graphicsView.setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     // graphicsView.setStyleSheet("border: 5px solid red");
+    connect(&timer, &QTimer::timeout, this, QOverload<>::of(&VideoPlayer::hideControlPanel));
+    timer.start(100);
     play();
 }
 
@@ -150,6 +155,18 @@ void VideoPlayer::rotateVideo(int angle)
     videoItem.setTransform(QTransform().translate(x, y).rotate(angle).translate(-x, -y));
 }
 
+void VideoPlayer::hideControlPanel()
+{
+    const auto finish = std::chrono::steady_clock::now();
+    const std::chrono::duration<float> elapsed_seconds = finish - controlPanel.start;
+
+    if (elapsed_seconds.count() >= 3)
+    {
+        controlPanel.playButton.hide();
+        controlPanel.positionSlider.hide();
+    }
+}
+
 void VideoPlayer::resizeEvent(QResizeEvent*)
 {
     graphicsView.fitInView(&videoItem, Qt::KeepAspectRatio);
@@ -164,4 +181,7 @@ void VideoPlayer::showEvent(QShowEvent*)
 void VideoPlayer::ControlPanel::mouseMoveEvent(QMouseEvent*)
 {
     qDebug() << "mouse is moved";
+    playButton.show();
+    positionSlider.show();
+    start = std::chrono::steady_clock::now();
 }

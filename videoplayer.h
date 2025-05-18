@@ -14,6 +14,7 @@
 #include <QGridLayout>
 #include <QAudioOutput>
 #include <QStackedLayout>
+#include <QTimer>
 
 class VideoPlayer : public QWidget
 {
@@ -30,6 +31,7 @@ private:
     void durationChanged(qint64 duration);
     void setPosition(int position);
     void rotateVideo(int angle);
+    void hideControlPanel();
 
     void resizeEvent(QResizeEvent*) override;
     void showEvent(QShowEvent*) override;
@@ -43,13 +45,17 @@ private:
         QPushButton playButton;
         QGridLayout coreLayout;
         QGridLayout layout;
-    } controlPanel;
+        std::chrono::time_point<std::chrono::steady_clock> start;
+        // std::chrono::time_point<std::chrono::steady_clock> finish;
+    }
+    controlPanel;
     QMediaPlayer mediaPlayer;
     QGraphicsScene scene;
     QGraphicsVideoItem videoItem;
     QAudioOutput audioOutput;
     QGraphicsView graphicsView;
     QStackedLayout layout;
+    QTimer timer;
 };
 
 #endif
