@@ -8,52 +8,43 @@
 #include <QStandardPaths>
 
 VideoPlayer::ControlPanel::ControlPanel(QWidget *parent):
-    playButton(this),
-    positionSlider(Qt::Horizontal, this),
-
-    layout()
+    QWidget{parent},
+    positionSlider{Qt::Horizontal}
 {
     positionSlider.setRange(0, 0);
 
     playButton.setEnabled(false);
     playButton.setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
 
-    layout.addWidget(&positionSlider, 0, 0, 1, 1);
-    layout.addWidget(&playButton, 1, 0, 1, 1);
+    coreLayout.addWidget(
+        &positionSlider,
+        0, 0, 1, 1,
+        Qt::AlignBottom
+    );
+    coreLayout.addWidget(
+        &playButton,
+        1, 0, 1, 1,
+        Qt::AlignBottom
+    );
+    core.setLayout(&coreLayout);
+
+    layout.addWidget(
+        &core,
+        1, 0, 1, 1,
+        Qt::AlignBottom
+    );
     setLayout(&layout);
+    setMouseTracking(true);
 }
 
 VideoPlayer::VideoPlayer(QWidget *parent):
-    QWidget(parent),
-    mediaPlayer(),
-    videoItem(new QGraphicsVideoItem),
-    scene(),
-    audioOutput(),
-
-    graphicsView(&scene, this),
-    controlPanel(this),
-
-    layout()
+    QWidget{parent},
+    // videoItem(new QGraphicsVideoItem),
+    graphicsView{&scene}
 {
-    const QSize screenGeometry = screen()->availableSize();
-
-    videoItem->setSize(
-        QSizeF(screenGeometry.width() / 3,
-        screenGeometry.height() / 2));
-
-    scene.addItem(videoItem);
-
-    // QSlider *rotateSlider = new QSlider(Qt::Horizontal);
-    // rotateSlider->setToolTip(tr("Rotate Video"));
-    // rotateSlider->setRange(-180, 180);
-    // rotateSlider->setValue(0);
-    // connect(rotateSlider, &QAbstractSlider::valueChanged, this, &VideoPlayer::rotateVideo);
-
-    // QAbstractButton *openButton = new QPushButton(tr("Open..."));
-    // connect(openButton, &QAbstractButton::clicked, this, &VideoPlayer::openFile);
+    scene.addItem(&videoItem);
 
     connect(&controlPanel.playButton, &QAbstractButton::clicked, this, &VideoPlayer::play);
-
     connect(&controlPanel.positionSlider, &QAbstractSlider::sliderMoved, this, &VideoPlayer::setPosition);
 
     layout.addWidget(&graphicsView);
@@ -61,18 +52,7 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     layout.setStackingMode(QStackedLayout::StackAll);
     setLayout(&layout);
 
-    // QBoxLayout *controlLayout = new QHBoxLayout;
-    // controlLayout->setContentsMargins(0, 0, 0, 0);
-    // controlLayout->addWidget(openButton);
-    // controlLayout->addWidget(m_playButton);
-    // controlLayout->addWidget(m_positionSlider);
-
-    // QBoxLayout *layout = new QVBoxLayout(this);
-    // layout->addWidget(graphicsView);
-    // layout->addWidget(rotateSlider);
-    // layout->addLayout(controlLayout);
-
-    mediaPlayer.setVideoOutput(videoItem);
+    mediaPlayer.setVideoOutput(&videoItem);
     mediaPlayer.setAudioOutput(&audioOutput);
     connect(&mediaPlayer,
         &QMediaPlayer::playbackStateChanged,
@@ -81,9 +61,11 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     connect(&mediaPlayer, &QMediaPlayer::positionChanged, this, &VideoPlayer::positionChanged);
     connect(&mediaPlayer, &QMediaPlayer::durationChanged, this, &VideoPlayer::durationChanged);
 
-    controlPanel.setMaximumHeight(controlPanel.minimumHeight());
-
-    load(QUrl("../test.mp4"));
+    load(QUrl("test.mp4"));
+    graphicsView.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    graphicsView.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    graphicsView.setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    // graphicsView.setStyleSheet("border: 5px solid red");
     play();
 }
 
@@ -91,7 +73,7 @@ VideoPlayer::VideoPlayer(QWidget *parent):
 
 QSize VideoPlayer::sizeHint() const
 {
-    return (videoItem->size() * qreal(3) / qreal(2)).toSize();
+    return (videoItem.size() * qreal(3) / qreal(2)).toSize();
 }
 
 bool VideoPlayer::isPlayerAvailable() const
@@ -163,9 +145,23 @@ void VideoPlayer::setPosition(int position)
 void VideoPlayer::rotateVideo(int angle)
 {
     // rotate around the center of video element
-    qreal x = videoItem->boundingRect().width() / 2.0;
-    qreal y = videoItem->boundingRect().height() / 2.0;
-    videoItem->setTransform(QTransform().translate(x, y).rotate(angle).translate(-x, -y));
+    qreal x = videoItem.boundingRect().width() / 2.0;
+    qreal y = videoItem.boundingRect().height() / 2.0;
+    videoItem.setTransform(QTransform().translate(x, y).rotate(angle).translate(-x, -y));
 }
 
-// #include "moc_videoplayer.cpp"
+void VideoPlayer::resizeEvent(QResizeEvent*)
+{
+    graphicsView.fitInView(&videoItem, Qt::KeepAspectRatio);
+}
+
+void VideoPlayer::showEvent(QShowEvent*)
+{
+    videoItem.setSize(size());
+    controlPanel.playButton.setMaximumWidth(controlPanel.playButton.height());
+}
+
+void VideoPlayer::ControlPanel::mouseMoveEvent(QMouseEvent*)
+{
+    qDebug() << "mouse is moved";
+}

@@ -17,40 +17,38 @@
 
 class VideoPlayer : public QWidget
 {
-    // Q_OBJECT
 public:
     VideoPlayer(QWidget *parent = nullptr);
-    // ~VideoPlayer();
     void load(const QUrl &url);
     bool isPlayerAvailable() const;
     QSize sizeHint() const override;
-// public slots:
     void openFile();
     void play();
-// private slots:
 private:
     void mediaStateChanged(QMediaPlayer::PlaybackState state);
     void positionChanged(qint64 position);
     void durationChanged(qint64 duration);
     void setPosition(int position);
     void rotateVideo(int angle);
-// private:
+
+    void resizeEvent(QResizeEvent*) override;
+    void showEvent(QShowEvent*) override;
+
     struct ControlPanel : public QWidget
     {
         ControlPanel(QWidget *parent = nullptr);
+        void mouseMoveEvent(QMouseEvent*) override;
+        QWidget core;
         QSlider positionSlider;
         QPushButton playButton;
-
+        QGridLayout coreLayout;
         QGridLayout layout;
-    };
+    } controlPanel;
     QMediaPlayer mediaPlayer;
-    QGraphicsVideoItem* videoItem;
     QGraphicsScene scene;
+    QGraphicsVideoItem videoItem;
     QAudioOutput audioOutput;
-
     QGraphicsView graphicsView;
-    ControlPanel controlPanel;
-
     QStackedLayout layout;
 };
 
