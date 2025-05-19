@@ -6,6 +6,7 @@
 #include <QScreen>
 #include <QFileDialog>
 #include <QStandardPaths>
+#include <qnamespace.h>
 
 VideoPlayer::ControlPanel::ControlPanel(QWidget *parent):
     QWidget{parent},
@@ -16,28 +17,19 @@ VideoPlayer::ControlPanel::ControlPanel(QWidget *parent):
 
     playButton.setEnabled(false);
     playButton.setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+    fullscreenButton.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::ViewFullscreen));
 
-    coreLayout.addWidget(
-        &positionSlider,
-        0, 0, 1, 1,
-        Qt::AlignBottom
-    );
-    coreLayout.addWidget(
-        &playButton,
-        1, 0, 1, 1,
-        Qt::AlignBottom
-    );
+    coreLayout.addWidget(&positionSlider, 0, 0, 1, 2, Qt::AlignBottom);
+    coreLayout.addWidget(&playButton, 1, 0, 1, 1, Qt::AlignBottom | Qt::AlignLeft);
+    coreLayout.addWidget(&fullscreenButton, 1, 1, 1, 1, Qt::AlignBottom | Qt::AlignRight);
     core.setLayout(&coreLayout);
 
-    layout.addWidget(
-        &core,
-        1, 0, 1, 1,
-        Qt::AlignBottom
-    );
+    layout.addWidget(&core, 1, 0, 1, 1, Qt::AlignBottom);
     setLayout(&layout);
     setMouseTracking(true);
     positionSlider.hide();
     playButton.hide();
+    fullscreenButton.hide();
 }
 
 VideoPlayer::VideoPlayer(QWidget *parent):
@@ -163,6 +155,7 @@ void VideoPlayer::hideControlPanel()
     if (elapsed_seconds.count() >= 3)
     {
         controlPanel.playButton.hide();
+        controlPanel.fullscreenButton.hide();
         controlPanel.positionSlider.hide();
     }
 }
@@ -176,12 +169,14 @@ void VideoPlayer::showEvent(QShowEvent*)
 {
     videoItem.setSize(size());
     controlPanel.playButton.setMaximumWidth(controlPanel.playButton.height());
+    controlPanel.fullscreenButton.setMaximumWidth(controlPanel.fullscreenButton.height());
 }
 
 void VideoPlayer::ControlPanel::mouseMoveEvent(QMouseEvent*)
 {
     qDebug() << "mouse is moved";
     playButton.show();
+    fullscreenButton.show();
     positionSlider.show();
     start = std::chrono::steady_clock::now();
 }

@@ -43,6 +43,7 @@ private:
         QWidget core;
         QSlider positionSlider;
         QPushButton playButton;
+        QPushButton fullscreenButton;
         QGridLayout coreLayout;
         QGridLayout layout;
         std::chrono::time_point<std::chrono::steady_clock> start;
