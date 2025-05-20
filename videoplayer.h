@@ -48,6 +48,10 @@ private:
         QGridLayout layout;
         std::chrono::time_point<std::chrono::steady_clock> start;
         // std::chrono::time_point<std::chrono::steady_clock> finish;
+        QIcon playIcon;
+        QIcon pauseIcon;
+        QIcon fullscreenIcon;
+        QIcon exitFullscreenIcon;
     }
     controlPanel;
     QMediaPlayer mediaPlayer;

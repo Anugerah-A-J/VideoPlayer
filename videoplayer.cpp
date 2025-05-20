@@ -6,18 +6,21 @@
 #include <QScreen>
 #include <QFileDialog>
 #include <QStandardPaths>
-#include <qnamespace.h>
 
 VideoPlayer::ControlPanel::ControlPanel(QWidget *parent):
     QWidget{parent},
     positionSlider{Qt::Horizontal},
-    start{std::chrono::steady_clock::now()}
+    start{std::chrono::steady_clock::now()},
+    playIcon{"icon/play_arrow.svg"},
+    pauseIcon{"icon/pause.svg"},
+    fullscreenIcon{"icon/fullscreen.svg"},
+    exitFullscreenIcon{"icon/fullscreen_exit.svg"}
 {
     positionSlider.setRange(0, 0);
 
     playButton.setEnabled(false);
-    playButton.setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-    fullscreenButton.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::ViewFullscreen));
+    playButton.setIcon(playIcon);
+    fullscreenButton.setIcon(fullscreenIcon);
 
     coreLayout.addWidget(&positionSlider, 0, 0, 1, 2, Qt::AlignBottom);
     coreLayout.addWidget(&playButton, 1, 0, 1, 1, Qt::AlignBottom | Qt::AlignLeft);
@@ -116,10 +119,10 @@ void VideoPlayer::mediaStateChanged(QMediaPlayer::PlaybackState state)
 {
     switch (state) {
     case QMediaPlayer::PlayingState:
-        controlPanel.playButton.setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+        controlPanel.playButton.setIcon(controlPanel.pauseIcon);
         break;
     default:
-        controlPanel.playButton.setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+        controlPanel.playButton.setIcon(controlPanel.playIcon);
         break;
     }
 }
