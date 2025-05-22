@@ -44,6 +44,7 @@ VideoPlayer::VideoPlayer(QWidget *parent):
 
     connect(&controlPanel.playButton, &QAbstractButton::clicked, this, &VideoPlayer::play);
     connect(&controlPanel.positionSlider, &QAbstractSlider::sliderMoved, this, &VideoPlayer::setPosition);
+    connect(&controlPanel.fullscreenButton, &QAbstractButton::clicked, this, &VideoPlayer::toggleFullscreen);
 
     layout.addWidget(&graphicsView);
     layout.addWidget(&controlPanel);
@@ -52,10 +53,7 @@ VideoPlayer::VideoPlayer(QWidget *parent):
 
     mediaPlayer.setVideoOutput(&videoItem);
     mediaPlayer.setAudioOutput(&audioOutput);
-    connect(&mediaPlayer,
-        &QMediaPlayer::playbackStateChanged,
-        this,
-        &VideoPlayer::mediaStateChanged);
+    connect(&mediaPlayer, &QMediaPlayer::playbackStateChanged, this, &VideoPlayer::mediaStateChanged);
     connect(&mediaPlayer, &QMediaPlayer::positionChanged, this, &VideoPlayer::positionChanged);
     connect(&mediaPlayer, &QMediaPlayer::durationChanged, this, &VideoPlayer::durationChanged);
 
@@ -105,7 +103,8 @@ void VideoPlayer::load(const QUrl &url)
 
 void VideoPlayer::play()
 {
-    switch (mediaPlayer.playbackState()) {
+    switch (mediaPlayer.playbackState())
+    {
     case QMediaPlayer::PlayingState:
         mediaPlayer.pause();
         break;
@@ -182,4 +181,20 @@ void VideoPlayer::ControlPanel::mouseMoveEvent(QMouseEvent*)
     fullscreenButton.show();
     positionSlider.show();
     start = std::chrono::steady_clock::now();
+}
+
+void VideoPlayer::toggleFullscreen()
+{
+    switch (windowState())
+    {
+    case Qt::WindowFullScreen:
+        setWindowState(beforeFullscreenState);
+        controlPanel.fullscreenButton.setIcon(controlPanel.fullscreenIcon);
+        break;
+    default:
+        beforeFullscreenState = windowState();
+        setWindowState(Qt::WindowFullScreen);
+        controlPanel.fullscreenButton.setIcon(controlPanel.exitFullscreenIcon);
+        break;
+    }
 }

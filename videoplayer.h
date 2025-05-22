@@ -32,6 +32,7 @@ private:
     void setPosition(int position);
     void rotateVideo(int angle);
     void hideControlPanel();
+    void toggleFullscreen();
 
     void resizeEvent(QResizeEvent*) override;
     void showEvent(QShowEvent*) override;
@@ -61,6 +62,7 @@ private:
     QGraphicsView graphicsView;
     QStackedLayout layout;
     QTimer timer;
+    Qt::WindowStates beforeFullscreenState;
 };
 
 #endif
