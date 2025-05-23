@@ -6,15 +6,18 @@
 #include <QScreen>
 #include <QFileDialog>
 #include <QStandardPaths>
+#include <QMouseEvent>
 
 VideoPlayer::ControlPanel::ControlPanel(QWidget *parent):
     QWidget{parent},
     positionSlider{Qt::Horizontal},
-    start{std::chrono::steady_clock::now()},
+    startMouseMove{std::chrono::steady_clock::now()},
+    startMouseLeftButtonPress{std::chrono::steady_clock::now()},
     playIcon{"icon/play_arrow.svg"},
     pauseIcon{"icon/pause.svg"},
     fullscreenIcon{"icon/fullscreen.svg"},
-    exitFullscreenIcon{"icon/fullscreen_exit.svg"}
+    exitFullscreenIcon{"icon/fullscreen_exit.svg"},
+    mouseLeftButtonPressed{false}
 {
     positionSlider.setRange(0, 0);
 
@@ -63,6 +66,7 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     graphicsView.setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     // graphicsView.setStyleSheet("border: 5px solid red");
     connect(&timer, &QTimer::timeout, this, QOverload<>::of(&VideoPlayer::hideControlPanel));
+    connect(&timer, &QTimer::timeout, this, QOverload<>::of(&VideoPlayer::playAtTwiceSpeed));
     timer.start(100);
     play();
 }
@@ -152,7 +156,7 @@ void VideoPlayer::rotateVideo(int angle)
 void VideoPlayer::hideControlPanel()
 {
     const auto finish = std::chrono::steady_clock::now();
-    const std::chrono::duration<float> elapsed_seconds = finish - controlPanel.start;
+    const std::chrono::duration<float> elapsed_seconds = finish - controlPanel.startMouseMove;
 
     if (elapsed_seconds.count() >= 3)
     {
@@ -160,6 +164,17 @@ void VideoPlayer::hideControlPanel()
         controlPanel.fullscreenButton.hide();
         controlPanel.positionSlider.hide();
     }
+}
+
+void VideoPlayer::playAtTwiceSpeed()
+{
+    const auto finish = std::chrono::steady_clock::now();
+    const std::chrono::duration<float> elapsed_seconds = finish - controlPanel.startMouseLeftButtonPress;
+
+    if (elapsed_seconds.count() >= 0.5 && controlPanel.mouseLeftButtonPressed)
+        mediaPlayer.setPlaybackRate(2);
+    else if (!controlPanel.mouseLeftButtonPressed)
+        mediaPlayer.setPlaybackRate(1);
 }
 
 void VideoPlayer::resizeEvent(QResizeEvent*)
@@ -176,11 +191,25 @@ void VideoPlayer::showEvent(QShowEvent*)
 
 void VideoPlayer::ControlPanel::mouseMoveEvent(QMouseEvent*)
 {
-    qDebug() << "mouse is moved";
     playButton.show();
     fullscreenButton.show();
     positionSlider.show();
-    start = std::chrono::steady_clock::now();
+    startMouseMove = std::chrono::steady_clock::now();
+}
+
+void VideoPlayer::ControlPanel::mousePressEvent(QMouseEvent* e)
+{
+    if (e->button() == Qt::LeftButton)
+    {
+        mouseLeftButtonPressed = true;
+        startMouseLeftButtonPress = std::chrono::steady_clock::now();
+    }
+}
+
+void VideoPlayer::ControlPanel::mouseReleaseEvent(QMouseEvent* e)
+{
+    if (e->button() == Qt::LeftButton)
+        mouseLeftButtonPressed = false;
 }
 
 void VideoPlayer::toggleFullscreen()

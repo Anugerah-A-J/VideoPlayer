@@ -33,6 +33,7 @@ private:
     void rotateVideo(int angle);
     void hideControlPanel();
     void toggleFullscreen();
+    void playAtTwiceSpeed();
 
     void resizeEvent(QResizeEvent*) override;
     void showEvent(QShowEvent*) override;
@@ -41,18 +42,21 @@ private:
     {
         ControlPanel(QWidget *parent = nullptr);
         void mouseMoveEvent(QMouseEvent*) override;
+        void mousePressEvent(QMouseEvent*) override;
+        void mouseReleaseEvent(QMouseEvent*) override;
         QWidget core;
         QSlider positionSlider;
         QPushButton playButton;
         QPushButton fullscreenButton;
         QGridLayout coreLayout;
         QGridLayout layout;
-        std::chrono::time_point<std::chrono::steady_clock> start;
-        // std::chrono::time_point<std::chrono::steady_clock> finish;
+        std::chrono::time_point<std::chrono::steady_clock> startMouseMove;
+        std::chrono::time_point<std::chrono::steady_clock> startMouseLeftButtonPress;
         QIcon playIcon;
         QIcon pauseIcon;
         QIcon fullscreenIcon;
         QIcon exitFullscreenIcon;
+        bool mouseLeftButtonPressed;
     }
     controlPanel;
     QMediaPlayer mediaPlayer;
