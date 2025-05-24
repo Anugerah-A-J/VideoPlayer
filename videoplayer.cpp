@@ -1,6 +1,3 @@
-// Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
-
 #include "videoplayer.h"
 #include <QStyle>
 #include <QScreen>
@@ -66,8 +63,7 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     graphicsView.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     graphicsView.setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     // graphicsView.setStyleSheet("border: 5px solid red");
-    connect(&timer, &QTimer::timeout, this, QOverload<>::of(&VideoPlayer::hideControlPanel));
-    connect(&timer, &QTimer::timeout, this, QOverload<>::of(&VideoPlayer::playAtTwiceSpeed));
+    connect(&timer, &QTimer::timeout, this, QOverload<>::of(&VideoPlayer::timerEvent));
     timer.start(100);
     play();
 }
@@ -154,28 +150,33 @@ void VideoPlayer::rotateVideo(int angle)
     videoItem.setTransform(QTransform().translate(x, y).rotate(angle).translate(-x, -y));
 }
 
-void VideoPlayer::hideControlPanel()
+void VideoPlayer::timerEvent()
 {
     const auto finish = std::chrono::steady_clock::now();
-    const std::chrono::duration<float> elapsed_seconds = finish - controlPanel.startMouseMove;
+    const std::chrono::duration<float> mouseMoveDuration = finish - controlPanel.startMouseMove;
 
-    if (elapsed_seconds.count() >= 3)
+    if (mouseMoveDuration.count() >= 3)
     {
         controlPanel.playButton.hide();
         controlPanel.fullscreenButton.hide();
         controlPanel.positionSlider.hide();
     }
-}
 
-void VideoPlayer::playAtTwiceSpeed()
-{
-    const auto finish = std::chrono::steady_clock::now();
-    const std::chrono::duration<float> elapsed_seconds = finish - controlPanel.startMouseLeftButtonPress;
+    const std::chrono::duration<float> MouseLeftButtonPressDuration = finish - controlPanel.startMouseLeftButtonPress;
 
-    if (elapsed_seconds.count() >= 0.5 && controlPanel.mouseLeftButtonPressed)
+    if (MouseLeftButtonPressDuration.count() >= 0.5 && controlPanel.mouseLeftButtonPressed)
         mediaPlayer.setPlaybackRate(2);
     else if (!controlPanel.mouseLeftButtonPressed)
         mediaPlayer.setPlaybackRate(1);
+
+    if (MouseLeftButtonPressDuration.count() <= 0.25 && !controlPanel.mouseLeftButtonPressed)
+    {
+        play();
+        controlPanel.playButton.show();
+        controlPanel.fullscreenButton.show();
+        controlPanel.positionSlider.show();
+        controlPanel.startMouseMove = std::chrono::steady_clock::now();
+    }
 }
 
 void VideoPlayer::resizeEvent(QResizeEvent*)

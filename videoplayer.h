@@ -1,6 +1,3 @@
-// Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
-
 #ifndef VIDEOPLAYER_H
 #define VIDEOPLAYER_H
 
@@ -58,9 +55,8 @@ private:
     void durationChanged(qint64 duration);
     void setPosition(int position);
     void rotateVideo(int angle);
-    void hideControlPanel();
+    void timerEvent();
     void toggleFullscreen();
-    void playAtTwiceSpeed();
 
     void resizeEvent(QResizeEvent*) override;
     void showEvent(QShowEvent*) override;
