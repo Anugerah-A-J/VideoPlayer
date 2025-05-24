@@ -16,6 +16,33 @@
 #include <QStackedLayout>
 #include <QTimer>
 
+class ControlPanel : public QWidget
+{
+Q_OBJECT
+friend class VideoPlayer;
+private:
+    ControlPanel(QWidget *parent = nullptr);
+    void mouseMoveEvent(QMouseEvent*) override;
+    void mousePressEvent(QMouseEvent*) override;
+    void mouseReleaseEvent(QMouseEvent*) override;
+    void mouseDoubleClickEvent(QMouseEvent*) override;
+    QWidget core;
+    QSlider positionSlider;
+    QPushButton playButton;
+    QPushButton fullscreenButton;
+    QGridLayout coreLayout;
+    QGridLayout layout;
+    std::chrono::time_point<std::chrono::steady_clock> startMouseMove;
+    std::chrono::time_point<std::chrono::steady_clock> startMouseLeftButtonPress;
+    QIcon playIcon;
+    QIcon pauseIcon;
+    QIcon fullscreenIcon;
+    QIcon exitFullscreenIcon;
+    bool mouseLeftButtonPressed;
+signals:
+    void doubleClicked();
+};
+
 class VideoPlayer : public QWidget
 {
 public:
@@ -38,27 +65,7 @@ private:
     void resizeEvent(QResizeEvent*) override;
     void showEvent(QShowEvent*) override;
 
-    struct ControlPanel : public QWidget
-    {
-        ControlPanel(QWidget *parent = nullptr);
-        void mouseMoveEvent(QMouseEvent*) override;
-        void mousePressEvent(QMouseEvent*) override;
-        void mouseReleaseEvent(QMouseEvent*) override;
-        QWidget core;
-        QSlider positionSlider;
-        QPushButton playButton;
-        QPushButton fullscreenButton;
-        QGridLayout coreLayout;
-        QGridLayout layout;
-        std::chrono::time_point<std::chrono::steady_clock> startMouseMove;
-        std::chrono::time_point<std::chrono::steady_clock> startMouseLeftButtonPress;
-        QIcon playIcon;
-        QIcon pauseIcon;
-        QIcon fullscreenIcon;
-        QIcon exitFullscreenIcon;
-        bool mouseLeftButtonPressed;
-    }
-    controlPanel;
+    ControlPanel controlPanel;
     QMediaPlayer mediaPlayer;
     QGraphicsScene scene;
     QGraphicsVideoItem videoItem;

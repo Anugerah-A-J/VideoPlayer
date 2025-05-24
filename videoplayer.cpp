@@ -8,7 +8,7 @@
 #include <QStandardPaths>
 #include <QMouseEvent>
 
-VideoPlayer::ControlPanel::ControlPanel(QWidget *parent):
+ControlPanel::ControlPanel(QWidget *parent):
     QWidget{parent},
     positionSlider{Qt::Horizontal},
     startMouseMove{std::chrono::steady_clock::now()},
@@ -48,6 +48,7 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     connect(&controlPanel.playButton, &QAbstractButton::clicked, this, &VideoPlayer::play);
     connect(&controlPanel.positionSlider, &QAbstractSlider::sliderMoved, this, &VideoPlayer::setPosition);
     connect(&controlPanel.fullscreenButton, &QAbstractButton::clicked, this, &VideoPlayer::toggleFullscreen);
+    connect(&controlPanel, &ControlPanel::doubleClicked, this, &VideoPlayer::toggleFullscreen);
 
     layout.addWidget(&graphicsView);
     layout.addWidget(&controlPanel);
@@ -189,7 +190,7 @@ void VideoPlayer::showEvent(QShowEvent*)
     controlPanel.fullscreenButton.setMaximumWidth(controlPanel.fullscreenButton.height());
 }
 
-void VideoPlayer::ControlPanel::mouseMoveEvent(QMouseEvent*)
+void ControlPanel::mouseMoveEvent(QMouseEvent*)
 {
     playButton.show();
     fullscreenButton.show();
@@ -197,7 +198,7 @@ void VideoPlayer::ControlPanel::mouseMoveEvent(QMouseEvent*)
     startMouseMove = std::chrono::steady_clock::now();
 }
 
-void VideoPlayer::ControlPanel::mousePressEvent(QMouseEvent* e)
+void ControlPanel::mousePressEvent(QMouseEvent* e)
 {
     if (e->button() == Qt::LeftButton)
     {
@@ -206,10 +207,15 @@ void VideoPlayer::ControlPanel::mousePressEvent(QMouseEvent* e)
     }
 }
 
-void VideoPlayer::ControlPanel::mouseReleaseEvent(QMouseEvent* e)
+void ControlPanel::mouseReleaseEvent(QMouseEvent* e)
 {
     if (e->button() == Qt::LeftButton)
         mouseLeftButtonPressed = false;
+}
+
+void ControlPanel::mouseDoubleClickEvent(QMouseEvent*)
+{
+    emit doubleClicked();
 }
 
 void VideoPlayer::toggleFullscreen()
