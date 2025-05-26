@@ -12,6 +12,7 @@
 #include <QAudioOutput>
 #include <QStackedLayout>
 #include <QTimer>
+#include <QLabel>
 
 class ControlPanel : public QWidget
 {
@@ -23,11 +24,13 @@ private:
     void mousePressEvent(QMouseEvent*) override;
     void mouseReleaseEvent(QMouseEvent*) override;
     void mouseDoubleClickEvent(QMouseEvent*) override;
-    QWidget core;
+    void showChildren();
+    void hideChildren();
+    // void keyPressEvent(QKeyEvent*) override;
     QSlider positionSlider;
     QPushButton playButton;
+    QLabel timeLabel;
     QPushButton fullscreenButton;
-    QGridLayout coreLayout;
     QGridLayout layout;
     std::chrono::time_point<std::chrono::steady_clock> startMouseMove;
     std::chrono::time_point<std::chrono::steady_clock> startMouseLeftButtonPress;
@@ -38,6 +41,8 @@ private:
     bool mouseLeftButtonPressed;
 signals:
     void doubleClicked();
+    // void skipForward(int position);
+    // void skipBackward(int position);
 };
 
 class VideoPlayer : public QWidget
@@ -55,11 +60,12 @@ private:
     void durationChanged(qint64 duration);
     void setPosition(int position);
     void rotateVideo(int angle);
-    void timerEvent();
+    void timeEvent();
     void toggleFullscreen();
+    QString msToTime(qint64 ms, bool& overAnHour);
 
     void resizeEvent(QResizeEvent*) override;
-    void showEvent(QShowEvent*) override;
+    void keyPressEvent(QKeyEvent*) override;
 
     ControlPanel controlPanel;
     QMediaPlayer mediaPlayer;
@@ -70,6 +76,7 @@ private:
     QStackedLayout layout;
     QTimer timer;
     Qt::WindowStates beforeFullscreenState;
+    QString durationTime;
 };
 
 #endif
