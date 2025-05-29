@@ -14,6 +14,7 @@
 #include <QTimer>
 #include <QLabel>
 #include <QVideoWidget>
+#include <QVideoSink>
 
 class ControlPanel : public QWidget
 {
@@ -27,6 +28,7 @@ private:
     bool mouseLeftPressed;
     bool mouseLeftReleased;
     std::chrono::time_point<std::chrono::steady_clock> startMouseLeftPress;
+    std::chrono::time_point<std::chrono::steady_clock> startMouseLeftRelease;
     void showChildren();
     void hideChildren();
     std::chrono::time_point<std::chrono::steady_clock> startShowChildren;
@@ -63,9 +65,11 @@ private:
     // void resizeEvent(QResizeEvent*) override;
     void keyPressEvent(QKeyEvent*) override;
     void keyReleaseEvent(QKeyEvent*) override;
+    void paintEvent(QPaintEvent*) override;
 
     ControlPanel controlPanel;
     QMediaPlayer mediaPlayer;
+    QVideoSink videoSink;
     // QGraphicsScene scene;
     // QGraphicsVideoItem videoItem;
     // QGraphicsView graphicsView;
@@ -79,10 +83,11 @@ private:
     bool keySpacePressed;
     bool keySpaceReleased;
     std::chrono::time_point<std::chrono::steady_clock> startKeyPress;
-    static constexpr float keyRepeatDelay = 0.25; // in s
-    static constexpr int skipDuration = 7000; // in ms
-    static constexpr float holdTreshold = 0.5; // in s
-    static constexpr float showControlPanelDuration = 3; // in s
+    static constexpr float keyRepeatDelay = 0.25; // in second
+    static constexpr int skipDuration = 7000; // in millisecond
+    static constexpr float holdTreshold = 0.5; // in second
+    static constexpr float showControlPanelDuration = 3; // in second
+    static constexpr float doubleClickDelay = 0.5; // in second
 };
 
 #endif
