@@ -1,21 +1,21 @@
 VideoPlayer
 
-[-] Show time over duration (layout problem)
+[X] Show time over duration (layout problem)
 [ ] Show map when zoom scale > 100 %
 [ ] Loop button
 [ ] Stay on top button
 
-[x] Double click on mouse left button to enter/exit fullscreen
-[x] Hold mouse left button to play 2x
-[-] Single click on mouse left button to play/pause (conflict with mouse double click)
+[-] Double click on mouse left button to enter/exit fullscreen      Wait for testing
+[-] Hold mouse left button to play 2x                               Wait for testing
+[-] Single click on mouse left button to play/pause                 Wait for testing
 [ ] Hover over slider to show thumbnail
 [ ] Hold mouse right button and scroll mouse wheel to zoom in
 [ ] Drag using mouse right button to pan when zoom scale > 100 %
 
-[-] Hit right key to skip forward 7 sec. (not showing control panel)
-[-] Hit left key to skip backward 7 sec. (not showing control panel)
-[ ] Hold space key to play 2x
-[ ] Hit space key to play/pause
+[-] Hit right key to skip forward 7 sec.    Wait for testing
+[-] Hit left key to skip backward 7 sec.    Wait for testing
+[-] Hold space key to play 2x               Wait for testing
+[-] Release space key to play/pause         Wait for testing
 
 [ ] Simple editing like merge and cut
 

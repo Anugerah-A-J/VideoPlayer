@@ -13,36 +13,32 @@
 #include <QStackedLayout>
 #include <QTimer>
 #include <QLabel>
+#include <QVideoWidget>
 
 class ControlPanel : public QWidget
 {
-Q_OBJECT
 friend class VideoPlayer;
 private:
     ControlPanel(QWidget *parent = nullptr);
     void mouseMoveEvent(QMouseEvent*) override;
+    bool mouseMoved;
     void mousePressEvent(QMouseEvent*) override;
     void mouseReleaseEvent(QMouseEvent*) override;
-    void mouseDoubleClickEvent(QMouseEvent*) override;
+    bool mouseLeftPressed;
+    bool mouseLeftReleased;
+    std::chrono::time_point<std::chrono::steady_clock> startMouseLeftPress;
     void showChildren();
     void hideChildren();
-    // void keyPressEvent(QKeyEvent*) override;
+    std::chrono::time_point<std::chrono::steady_clock> startShowChildren;
     QSlider positionSlider;
     QPushButton playButton;
     QLabel timeLabel;
     QPushButton fullscreenButton;
     QGridLayout layout;
-    std::chrono::time_point<std::chrono::steady_clock> startMouseMove;
-    std::chrono::time_point<std::chrono::steady_clock> startMouseLeftButtonPress;
     QIcon playIcon;
     QIcon pauseIcon;
     QIcon fullscreenIcon;
     QIcon exitFullscreenIcon;
-    bool mouseLeftButtonPressed;
-signals:
-    void doubleClicked();
-    // void skipForward(int position);
-    // void skipBackward(int position);
 };
 
 class VideoPlayer : public QWidget
@@ -51,7 +47,7 @@ public:
     VideoPlayer(QWidget *parent = nullptr);
     void load(const QUrl &url);
     bool isPlayerAvailable() const;
-    QSize sizeHint() const override;
+    // QSize sizeHint() const override;
     void openFile();
     void play();
 private:
@@ -59,24 +55,34 @@ private:
     void positionChanged(qint64 position);
     void durationChanged(qint64 duration);
     void setPosition(int position);
-    void rotateVideo(int angle);
-    void timeEvent();
+    // void rotateVideo(int angle);
+    void processEvent();
     void toggleFullscreen();
     QString msToTime(qint64 ms, bool& overAnHour);
 
-    void resizeEvent(QResizeEvent*) override;
+    // void resizeEvent(QResizeEvent*) override;
     void keyPressEvent(QKeyEvent*) override;
+    void keyReleaseEvent(QKeyEvent*) override;
 
     ControlPanel controlPanel;
     QMediaPlayer mediaPlayer;
-    QGraphicsScene scene;
-    QGraphicsVideoItem videoItem;
+    // QGraphicsScene scene;
+    // QGraphicsVideoItem videoItem;
+    // QGraphicsView graphicsView;
     QAudioOutput audioOutput;
-    QGraphicsView graphicsView;
     QStackedLayout layout;
     QTimer timer;
     Qt::WindowStates beforeFullscreenState;
     QString durationTime;
+    bool keyLeftPressed;
+    bool keyRightPressed;
+    bool keySpacePressed;
+    bool keySpaceReleased;
+    std::chrono::time_point<std::chrono::steady_clock> startKeyPress;
+    static constexpr float keyRepeatDelay = 0.25; // in s
+    static constexpr int skipDuration = 7000; // in ms
+    static constexpr float holdTreshold = 0.5; // in s
+    static constexpr float showControlPanelDuration = 3; // in s
 };
 
 #endif
