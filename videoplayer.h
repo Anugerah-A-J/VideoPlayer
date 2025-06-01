@@ -21,16 +21,14 @@ class ControlPanel : public QWidget
 friend class VideoPlayer;
 private:
     ControlPanel(QWidget *parent = nullptr);
-    void mouseMoveEvent(QMouseEvent*) override;
+    // void mouseMoveEvent(QMouseEvent*) override;
     bool mouseMoved;
-    void mousePressEvent(QMouseEvent*) override;
-    void mouseReleaseEvent(QMouseEvent*) override;
+    // void mousePressEvent(QMouseEvent*) override;
+    // void mouseReleaseEvent(QMouseEvent*) override;
     bool mouseLeftPressed;
     bool mouseLeftReleased;
     std::chrono::time_point<std::chrono::steady_clock> startMouseLeftPress;
     std::chrono::time_point<std::chrono::steady_clock> startMouseLeftRelease;
-    void showChildren();
-    void hideChildren();
     std::chrono::time_point<std::chrono::steady_clock> startShowChildren;
     QSlider positionSlider;
     QPushButton playButton;
@@ -52,24 +50,29 @@ public:
     // QSize sizeHint() const override;
     void openFile();
     void play();
+    void run();
 private:
     void mediaStateChanged(QMediaPlayer::PlaybackState state);
     void positionChanged(qint64 position);
     void durationChanged(qint64 duration);
     void setPosition(int position);
     // void rotateVideo(int angle);
-    void processEvent();
+    void timeEvent();
     void toggleFullscreen();
     QString msToTime(qint64 ms, bool& overAnHour);
+    void printError(QMediaPlayer::Error error, const QString &errorString);
 
     // void resizeEvent(QResizeEvent*) override;
     void keyPressEvent(QKeyEvent*) override;
     void keyReleaseEvent(QKeyEvent*) override;
     void paintEvent(QPaintEvent*) override;
+    // void leaveEvent(QEvent*) override;
+    // void showEvent(QShowEvent*) override;
 
     ControlPanel controlPanel;
     QMediaPlayer mediaPlayer;
     QVideoSink videoSink;
+    QPushButton openFileButton;
     // QGraphicsScene scene;
     // QGraphicsVideoItem videoItem;
     // QGraphicsView graphicsView;
@@ -78,11 +81,9 @@ private:
     QTimer timer;
     Qt::WindowStates beforeFullscreenState;
     QString durationTime;
-    bool keyLeftPressed;
-    bool keyRightPressed;
-    bool keySpacePressed;
-    bool keySpaceReleased;
-    std::chrono::time_point<std::chrono::steady_clock> startKeyPress;
+    bool processKeySpaceRelease;
+    bool processKeySpacePress;
+    std::chrono::time_point<std::chrono::steady_clock> startKeySpacePress;
     static constexpr float keyRepeatDelay = 0.25; // in second
     static constexpr int skipDuration = 7000; // in millisecond
     static constexpr float holdTreshold = 0.5; // in second

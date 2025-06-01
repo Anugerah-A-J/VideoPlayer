@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(VideoPlayer LANGUAGES CXX)
+project(vp LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
 
