@@ -21,8 +21,7 @@ class ControlPanel : public QWidget
 friend class VideoPlayer;
 private:
     ControlPanel(QWidget *parent = nullptr);
-    // void mouseMoveEvent(QMouseEvent*) override;
-    bool mouseMoved;
+    void mouseMoveEvent(QMouseEvent*) override;
     // void mousePressEvent(QMouseEvent*) override;
     // void mouseReleaseEvent(QMouseEvent*) override;
     bool mouseLeftPressed;
@@ -66,7 +65,8 @@ private:
     void keyPressEvent(QKeyEvent*) override;
     void keyReleaseEvent(QKeyEvent*) override;
     void paintEvent(QPaintEvent*) override;
-    // void leaveEvent(QEvent*) override;
+    void leaveEvent(QEvent*) override;
+    void mouseMoveEvent(QMouseEvent*) override;
     // void showEvent(QShowEvent*) override;
 
     ControlPanel controlPanel;
