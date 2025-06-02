@@ -81,9 +81,8 @@ private:
     QTimer timer;
     Qt::WindowStates beforeFullscreenState;
     QString durationTime;
-    bool processKeySpaceRelease;
-    bool processKeySpacePress;
-    std::chrono::time_point<std::chrono::steady_clock> startKeySpacePress;
+    bool keySpacePressIsAutoRepeat;
+    // std::chrono::time_point<std::chrono::steady_clock> startKeySpacePress;
     static constexpr float keyRepeatDelay = 0.25; // in second
     static constexpr int skipDuration = 7000; // in millisecond
     static constexpr float holdTreshold = 0.5; // in second

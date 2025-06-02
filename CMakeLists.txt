@@ -16,10 +16,11 @@ qt_add_executable(${PROJECT_NAME}
     videoplayer.cpp videoplayer.h
 )
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    WIN32_EXECUTABLE TRUE
-    MACOSX_BUNDLE TRUE
-)
+# this close the terminal when app is running
+# set_target_properties(${PROJECT_NAME} PROPERTIES
+#     WIN32_EXECUTABLE TRUE
+#     MACOSX_BUNDLE TRUE
+# )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
     Qt::Core

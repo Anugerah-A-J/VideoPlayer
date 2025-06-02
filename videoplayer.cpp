@@ -42,10 +42,9 @@ ControlPanel::ControlPanel(QWidget *parent):
 
 VideoPlayer::VideoPlayer(QWidget *parent):
     QWidget{parent},
-    openFileButton{"Open"},
-    processKeySpaceRelease{false},
-    processKeySpacePress{false},
-    startKeySpacePress{std::chrono::steady_clock::now()}
+    openFileButton{"Open"}
+    // keySpacePressed{false},
+    // startKeySpacePress{std::chrono::steady_clock::now()}
     // ,graphicsView{&scene}
 {
     // scene.addItem(&videoItem);
@@ -74,7 +73,7 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     // graphicsView.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     // graphicsView.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     // graphicsView.setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-    // connect(&timer, &QTimer::timeout, this, QOverload<>::of(&VideoPlayer::processEvent));
+    connect(&timer, &QTimer::timeout, this, QOverload<>::of(&VideoPlayer::timeEvent));
     timer.start(100);
     controlPanel.hide();
     resize(640, 480);
@@ -228,8 +227,8 @@ void VideoPlayer::timeEvent()
     if (openFileButton.isVisible())
         return;
 
-    const auto finish = std::chrono::steady_clock::now();
-    std::chrono::duration<float> duration;
+    // const auto finish = std::chrono::steady_clock::now();
+    // std::chrono::duration<float> duration;
 
 //     // mouse move
 //     const std::chrono::duration<float> showChildrenDuration = finish - controlPanel.startShowChildren;
@@ -269,27 +268,6 @@ void VideoPlayer::timeEvent()
 //         controlPanel.mouseLeftPressed = false;
 //         mediaPlayer.setPlaybackRate(2);
 //     }
-
-//     // keyboard
-    duration = finish - startKeySpacePress;
-    qDebug() << duration;
-    if (processKeySpaceRelease && duration.count() <= holdTreshold)
-    {
-        processKeySpaceRelease = false;
-        play();
-        controlPanel.show();
-        controlPanel.startShowChildren = std::chrono::steady_clock::now();
-    }
-    else if (processKeySpaceRelease && duration.count() > holdTreshold)
-    {
-        processKeySpaceRelease = false;
-        mediaPlayer.setPlaybackRate(1);
-    }
-    else if (processKeySpacePress && duration.count() > holdTreshold)
-    {
-        processKeySpacePress = false;
-        mediaPlayer.setPlaybackRate(2);
-    }
 }
 
 // void VideoPlayer::resizeEvent(QResizeEvent*)
@@ -302,10 +280,12 @@ void VideoPlayer::keyPressEvent(QKeyEvent* e)
     switch (e->key())
     {
     case Qt::Key_Space:
-        if (!processKeySpacePress)
+        if (!e->isAutoRepeat())
+            keySpacePressIsAutoRepeat = false;
+        else
         {
-            processKeySpacePress = true;
-            startKeySpacePress = std::chrono::steady_clock::now();
+            keySpacePressIsAutoRepeat = true;
+            mediaPlayer.setPlaybackRate(2);
         }
         break;
     }
@@ -328,7 +308,14 @@ void VideoPlayer::keyReleaseEvent(QKeyEvent* e)
         controlPanel.startShowChildren = std::chrono::steady_clock::now();
         break;
     case Qt::Key_Space:
-        processKeySpaceRelease = true;
+        if (!e->isAutoRepeat() && !keySpacePressIsAutoRepeat)
+        {
+            play();
+            controlPanel.show();
+            controlPanel.startShowChildren = std::chrono::steady_clock::now();
+        }
+        else if (!e->isAutoRepeat() && keySpacePressIsAutoRepeat)
+            mediaPlayer.setPlaybackRate(1);
         break;
     }
 }
