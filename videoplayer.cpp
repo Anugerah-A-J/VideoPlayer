@@ -10,7 +10,7 @@
 ControlPanel::ControlPanel(QWidget *parent):
     QWidget{parent},
     mouseLeftPressed{false},
-    mouseLeftReleased{false},
+    // mouseLeftReleased{false},
     positionSlider{Qt::Horizontal},
     playIcon{"icon/play_arrow.svg"},
     pauseIcon{"icon/pause.svg"},
@@ -49,6 +49,8 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     connect(&controlPanel.playButton, &QAbstractButton::clicked, this, &VideoPlayer::play);
     connect(&controlPanel.positionSlider, &QAbstractSlider::sliderMoved, this, &VideoPlayer::setPosition);
     connect(&controlPanel.fullscreenButton, &QAbstractButton::clicked, this, &VideoPlayer::toggleFullscreen);
+    connect(&controlPanel, &ControlPanel::togglePlay, this, &VideoPlayer::play);
+    connect(&controlPanel, &ControlPanel::setPlaybackRate, &mediaPlayer, &QMediaPlayer::setPlaybackRate);
     connect(&openFileButton, &QAbstractButton::clicked, this, &VideoPlayer::openFile);
 
     // layout.addWidget(&graphicsView);
@@ -79,7 +81,7 @@ VideoPlayer::VideoPlayer(QWidget *parent):
 
 void VideoPlayer::printError(QMediaPlayer::Error error, const QString &errorString)
 {
-    qDebug() << error;
+    qDebug() << error ;
     qDebug() << errorString;
 }
 
@@ -230,32 +232,10 @@ void VideoPlayer::timeEvent()
     duration = finish - controlPanel.startShowChildren;
     if (duration.count() > showControlPanelDuration && mediaPlayer.playbackState() == QMediaPlayer::PlayingState)
         controlPanel.hide();
-//     // mouse clicked
-//     const std::chrono::duration<float> mouseLeftPressDuration = finish - controlPanel.startMouseLeftPress;
-//     const std::chrono::duration<float> mouseLeftReleaseDuration = finish - controlPanel.startMouseLeftRelease;
-//     if (controlPanel.mouseLeftReleased && mouseLeftPressDuration.count() < holdTreshold)
-//     {
-//         controlPanel.mouseLeftReleased = false;
-//         play();
-//         controlPanel.show();
-//         controlPanel.startShowChildren = std::chrono::steady_clock::now();
-//     }
-//     else if (controlPanel.mouseLeftReleased && mouseLeftPressDuration.count() > holdTreshold)
-//     {
-//         controlPanel.mouseLeftReleased = false;
-//         mediaPlayer.setPlaybackRate(1);
-//     }
-//     else if (controlPanel.mouseLeftReleased && mouseLeftReleaseDuration.count() - mouseLeftPressDuration.count() < doubleClickDelay)
-//     {
-//         controlPanel.mouseLeftReleased = false;
-//         controlPanel.startMouseLeftRelease = std::chrono::steady_clock::now();
-//         toggleFullscreen();
-//     }
-//     else if (controlPanel.mouseLeftPressed && mouseLeftPressDuration.count() > holdTreshold)
-//     {
-//         controlPanel.mouseLeftPressed = false;
-//         mediaPlayer.setPlaybackRate(2);
-//     }
+
+    duration = finish - controlPanel.startMouseLeftPress;
+    if (duration.count() > controlPanel.holdTreshold && controlPanel.mouseLeftPressed)
+        mediaPlayer.setPlaybackRate(2);
 }
 
 // void VideoPlayer::resizeEvent(QResizeEvent*)
@@ -335,24 +315,79 @@ void ControlPanel::mouseMoveEvent(QMouseEvent*)
     startShowChildren = std::chrono::steady_clock::now();
 }
 
-// void ControlPanel::mousePressEvent(QMouseEvent* e)
-// {
-//     if (e->button() == Qt::LeftButton)
-//     {
-//         mouseLeftPressed = true;
-//         mouseLeftReleased = false;
-//         startMouseLeftPress = std::chrono::steady_clock::now();
-//     }
-// }
+void VideoPlayer::mousePressEvent(QMouseEvent* e)
+{
+    if (e->button() == Qt::LeftButton)
+    {
+        // std::cout << "VideoPlayer: mouse left button pressed\n";
+        controlPanel.startMouseLeftPress = std::chrono::steady_clock::now();
+        controlPanel.mouseLeftPressed = true;
+    }
+}
 
-// void ControlPanel::mouseReleaseEvent(QMouseEvent* e)
-// {
-//     if (e->button() == Qt::LeftButton)
-//     {
-//         mouseLeftReleased = true;
-//         mouseLeftPressed = false;
-//     }
-// }
+void ControlPanel::mousePressEvent(QMouseEvent* e)
+{
+    if (e->button() == Qt::LeftButton)
+    {
+        // std::cout << "ControlPanel: mouse left button pressed\n";
+        startMouseLeftPress = std::chrono::steady_clock::now();
+        mouseLeftPressed = true;
+    }
+}
+
+void VideoPlayer::mouseReleaseEvent(QMouseEvent* e)
+{
+    if (e->button() == Qt::LeftButton)
+    {
+        // if you use the commented one, the time is inaccurate
+        // const auto duration = (std::chrono::steady_clock::now() - controlPanel.startMouseLeftPress).count();
+        const auto finish = std::chrono::steady_clock::now();
+        std::chrono::duration<float> duration;
+        duration = finish - controlPanel.startMouseLeftPress;
+
+        // std::cout << duration << " s\n";
+        std::cout << duration.count() << " s\n";
+
+        controlPanel.mouseLeftPressed = false;
+
+        // if (duration <= controlPanel.holdTreshold)
+        if (duration.count() <= controlPanel.holdTreshold)
+        {
+            play();
+            controlPanel.show();
+            controlPanel.startShowChildren = std::chrono::steady_clock::now();
+        }
+        else
+            mediaPlayer.setPlaybackRate(1);
+    }
+}
+
+void ControlPanel::mouseReleaseEvent(QMouseEvent* e)
+{
+    if (e->button() == Qt::LeftButton)
+    {
+        // if you use the commented one, the time is inaccurate
+        // const auto duration = (std::chrono::steady_clock::now() - startMouseLeftPress).count();
+        const auto finish = std::chrono::steady_clock::now();
+        std::chrono::duration<float> duration;
+        duration = finish - startMouseLeftPress;
+
+        // std::cout << duration << " s\n";
+        std::cout << duration.count() << " s\n";
+
+        mouseLeftPressed = false;
+
+        // if (duration <= holdTreshold)
+        if (duration.count() <= holdTreshold)
+        {
+            show();
+            startShowChildren = std::chrono::steady_clock::now();
+            emit togglePlay();
+        }
+        else
+            emit setPlaybackRate(1);
+    }
+}
 
 void VideoPlayer::toggleFullscreen()
 {

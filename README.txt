@@ -1,13 +1,13 @@
 VideoPlayer
 
-[x] Show time over duration (layout problem)
+[x] Show time over duration
 [ ] Show map when zoom scale > 100 %
 [ ] Loop button
 [ ] Stay on top button
 
 [ ] Double click on mouse left button to enter/exit fullscreen
-[ ] Hold mouse left button to play 2x
-[ ] Single click on mouse left button to play/pause
+[x] Hold mouse left button to play 2x
+[x] Single click on mouse left button to play/pause
 [ ] Hover over slider to show thumbnail
 [ ] Hold mouse right button and scroll mouse wheel to zoom in
 [ ] Drag using mouse right button to pan when zoom scale > 100 %

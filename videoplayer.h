@@ -18,14 +18,15 @@
 
 class ControlPanel : public QWidget
 {
+    Q_OBJECT
 friend class VideoPlayer;
 private:
     ControlPanel(QWidget *parent = nullptr);
     void mouseMoveEvent(QMouseEvent*) override;
-    // void mousePressEvent(QMouseEvent*) override;
-    // void mouseReleaseEvent(QMouseEvent*) override;
+    void mousePressEvent(QMouseEvent*) override;
+    void mouseReleaseEvent(QMouseEvent*) override;
     bool mouseLeftPressed;
-    bool mouseLeftReleased;
+    // bool mouseLeftReleased;
     std::chrono::time_point<std::chrono::steady_clock> startMouseLeftPress;
     std::chrono::time_point<std::chrono::steady_clock> startMouseLeftRelease;
     std::chrono::time_point<std::chrono::steady_clock> startShowChildren;
@@ -38,6 +39,13 @@ private:
     QIcon pauseIcon;
     QIcon fullscreenIcon;
     QIcon exitFullscreenIcon;
+    // std::array<>
+public:
+    static constexpr float holdTreshold = 0.5; // in second
+    static constexpr float doubleClickDelay = 0.5; // in second
+signals:
+    void togglePlay();
+    void setPlaybackRate(qreal rate);
 };
 
 class VideoPlayer : public QWidget
@@ -67,6 +75,8 @@ private:
     void paintEvent(QPaintEvent*) override;
     void leaveEvent(QEvent*) override;
     void mouseMoveEvent(QMouseEvent*) override;
+    void mousePressEvent(QMouseEvent*) override;
+    void mouseReleaseEvent(QMouseEvent*) override;
     // void showEvent(QShowEvent*) override;
 
     ControlPanel controlPanel;
@@ -83,11 +93,9 @@ private:
     QString durationTime;
     bool keySpacePressIsAutoRepeat;
     // std::chrono::time_point<std::chrono::steady_clock> startKeySpacePress;
-    static constexpr float keyRepeatDelay = 0.25; // in second
+public:
     static constexpr int skipDuration = 7000; // in millisecond
-    static constexpr float holdTreshold = 0.5; // in second
     static constexpr float showControlPanelDuration = 3; // in second
-    static constexpr float doubleClickDelay = 0.5; // in second
 };
 
 #endif
