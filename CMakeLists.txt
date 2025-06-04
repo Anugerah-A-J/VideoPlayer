@@ -1,3 +1,5 @@
+# cmake -G Ninja -B build
+
 cmake_minimum_required(VERSION 3.16)
 project(vp LANGUAGES CXX)
 
@@ -30,7 +32,12 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     Qt::Widgets
 )
 
+# config:
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+set(CMAKE_CXX_COMPILER g++)
+set(CMAKE_BUILD_TYPE Debug)
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror -O)
+# set(CMAKE_BUILD_TYPE Release)
 
 qt_add_ios_ffmpeg_libraries(${PROJECT_NAME})
 

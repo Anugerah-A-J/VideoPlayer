@@ -5,7 +5,7 @@ VideoPlayer
 [ ] Loop button
 [ ] Stay on top button
 
-[ ] Double click on mouse left button to enter/exit fullscreen
+[x] Double click on mouse left button to enter/exit fullscreen
 [x] Hold mouse left button to play 2x
 [x] Single click on mouse left button to play/pause
 [ ] Hover over slider to show thumbnail

@@ -18,7 +18,6 @@
 
 class ControlPanel : public QWidget
 {
-    Q_OBJECT
 friend class VideoPlayer;
 private:
     ControlPanel(QWidget *parent = nullptr);
@@ -26,9 +25,10 @@ private:
     void mousePressEvent(QMouseEvent*) override;
     void mouseReleaseEvent(QMouseEvent*) override;
     bool mouseLeftPressed;
-    // bool mouseLeftReleased;
     std::chrono::time_point<std::chrono::steady_clock> startMouseLeftPress;
     std::chrono::time_point<std::chrono::steady_clock> startMouseLeftRelease;
+    bool itsALeftClick;
+    bool alreadyLeftClickedOnce;
     std::chrono::time_point<std::chrono::steady_clock> startShowChildren;
     QSlider positionSlider;
     QPushButton playButton;
@@ -39,17 +39,14 @@ private:
     QIcon pauseIcon;
     QIcon fullscreenIcon;
     QIcon exitFullscreenIcon;
-    // std::array<>
 public:
     static constexpr float holdTreshold = 0.5; // in second
     static constexpr float doubleClickDelay = 0.5; // in second
-signals:
-    void togglePlay();
-    void setPlaybackRate(qreal rate);
 };
 
 class VideoPlayer : public QWidget
 {
+friend class ControlPanel;
 public:
     VideoPlayer(QWidget *parent = nullptr);
     void load(const QUrl &url);
