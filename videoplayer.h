@@ -16,6 +16,18 @@
 #include <QVideoWidget>
 #include <QVideoSink>
 
+class PositionSlider : public QSlider
+{
+friend class VideoPlayer;
+public:
+    PositionSlider(Qt::Orientation orientation, QWidget *parent = nullptr);
+private:
+    void mouseMoveEvent(QMouseEvent*) override;
+    void enterEvent(QEnterEvent*) override;
+    void leaveEvent(QEvent*) override;
+    bool mouseIsInsideMe;
+};
+
 class ControlPanel : public QWidget
 {
 friend class VideoPlayer;
@@ -30,7 +42,7 @@ private:
     bool itsALeftClick;
     bool alreadyLeftClickedOnce;
     std::chrono::time_point<std::chrono::steady_clock> startShowChildren;
-    QSlider positionSlider;
+    PositionSlider positionSlider;
     QPushButton playButton;
     QLabel timeLabel;
     QPushButton fullscreenButton;
@@ -39,9 +51,6 @@ private:
     QIcon pauseIcon;
     QIcon fullscreenIcon;
     QIcon exitFullscreenIcon;
-public:
-    static constexpr float holdTreshold = 0.5; // in second
-    static constexpr float doubleClickDelay = 0.5; // in second
 };
 
 class VideoPlayer : public QWidget
@@ -55,6 +64,7 @@ public:
     void openFile();
     void play();
     void run();
+    static QString msToTime(qint64 ms, bool& overAnHour);
 private:
     void mediaStateChanged(QMediaPlayer::PlaybackState state);
     void positionChanged(qint64 position);
@@ -63,7 +73,6 @@ private:
     // void rotateVideo(int angle);
     void timeEvent();
     void toggleFullscreen();
-    QString msToTime(qint64 ms, bool& overAnHour);
     void printError(QMediaPlayer::Error error, const QString &errorString);
 
     // void resizeEvent(QResizeEvent*) override;
@@ -93,6 +102,8 @@ private:
 public:
     static constexpr int skipDuration = 7000; // in millisecond
     static constexpr float showControlPanelDuration = 3; // in second
+    static constexpr float holdTreshold = 0.5; // in second
+    static constexpr float doubleClickDelay = 0.5; // in second
 };
 
 #endif
