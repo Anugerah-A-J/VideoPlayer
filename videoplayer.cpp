@@ -11,7 +11,8 @@
 PositionSlider::PositionSlider(Qt::Orientation orientation, QWidget *parent):
     QSlider{orientation, parent},
     mouseIsInsideMe{false},
-    timeLabel{nullptr, Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint} // without title bar
+    timeLabel{nullptr, Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint}, // without title bar and always on top
+    timeText{""}
 {
     setMouseTracking(true);
     setCursor(Qt::PointingHandCursor);
@@ -22,14 +23,19 @@ void PositionSlider::mouseMoveEvent(QMouseEvent* e)
     bool b;
     ms = e->position().x() / width() * maximum();
 
-    QString text = VideoPlayer::msToTime(ms, b);
+    QString newTimeText = VideoPlayer::msToTime(ms, b);
 
     QPoint position {
         static_cast<int>(e->position().x()),
         -height()
     };
 
-    timeLabel.setText(text);
+    if (timeText != newTimeText)
+    {
+        timeText = newTimeText;
+        timeLabel.setText(newTimeText);
+        emit timeTextChanged(ms, mapToGlobal(position) + QPoint(0, -timeLabel.height()));
+    }
     timeLabel.setFixedWidth(timeLabel.sizeHint().width());
     position.setX(position.x() - timeLabel.size().width() / 2);
     timeLabel.move(mapToGlobal(position));
@@ -69,9 +75,11 @@ ControlPanel::ControlPanel(QWidget *parent):
     playButton.setEnabled(false);
     playButton.setIcon(playIcon);
     playButton.setCursor(Qt::PointingHandCursor);
+    // playButton.setAttribute(Qt::WA_TranslucentBackground); this doesn't work
 
     fullscreenButton.setIcon(fullscreenIcon);
     fullscreenButton.setCursor(Qt::PointingHandCursor);
+    // fullscreenButton.setAttribute(Qt::WA_TranslucentBackground); this doesn't work
 
     layout.addWidget(&positionSlider, 1, 0, 1, 3);
     layout.addWidget(&playButton, 2, 0, 1, 1);
@@ -83,12 +91,14 @@ ControlPanel::ControlPanel(QWidget *parent):
 
     setLayout(&layout);
     setMouseTracking(true);
-    setStyleSheet("border: 1px solid red");
+    // setStyleSheet("border: 1px solid red");
 }
 
 VideoPlayer::VideoPlayer(QWidget *parent):
     QWidget{parent},
-    openFileButton{"Open"}
+    openFileButton{"Open"},
+    // thumbnailLabel{nullptr, Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint} // without title bar and always on top
+    thumbnailLabel{nullptr, Qt::Window | Qt::FramelessWindowHint} // without title bar
     // keySpacePressed{false},
     // startKeySpacePress{std::chrono::steady_clock::now()}
     // ,graphicsView{&scene}
@@ -124,6 +134,7 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     controlPanel.hide();
     resize(640, 480);
     setMouseTracking(true);
+    connect(&controlPanel.positionSlider, &PositionSlider::timeTextChanged, this, &VideoPlayer::updateThumbnail);
     // graphicsView.setStyleSheet("border: 5px solid red");
 }
 
@@ -254,6 +265,20 @@ QString VideoPlayer::msToTime(qint64 ms, bool& overAnHour)
     return time;
 }
 
+void VideoPlayer::updateThumbnail(const qint64& ms, const QPoint& cursorGlobalPosition)
+{
+    int oldPosition = mediaPlayer.position();
+    setPosition(ms); // not efficient
+    QImage img = videoSink.videoFrame().toImage();
+    setPosition(oldPosition); // not efficient
+
+    QPixmap px = QPixmap::fromImage(img);
+    thumbnailLabel.setPixmap(px.scaledToHeight(thumbnailHeight));
+    // thumbnailLabel.move(cursorGlobalPosition + QPoint(-px.width() / 2, 0));
+    thumbnailLabel.move(cursorGlobalPosition * 0);
+    thumbnailLabel.show();
+}
+
 void VideoPlayer::durationChanged(qint64 duration)
 {
     controlPanel.positionSlider.setRange(0, duration);
@@ -285,6 +310,9 @@ void VideoPlayer::timeEvent()
 {
     if (openFileButton.isVisible())
         return;
+
+    if (!controlPanel.positionSlider.mouseIsInsideMe)
+        thumbnailLabel.hide();
 
     const auto finish = std::chrono::steady_clock::now();
     std::chrono::duration<float> duration;

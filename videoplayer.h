@@ -18,9 +18,12 @@
 
 class PositionSlider : public QSlider
 {
+    Q_OBJECT
 friend class VideoPlayer;
 public:
     PositionSlider(Qt::Orientation orientation, QWidget *parent = nullptr);
+signals:
+    void timeTextChanged(const qint64& ms, const QPoint& cursorGlobalPosition);
 private:
     void mouseMoveEvent(QMouseEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
@@ -30,6 +33,7 @@ private:
     bool mouseIsInsideMe;
     QLabel timeLabel;
     qint64 ms;
+    QString timeText;
 };
 
 class ControlPanel : public QWidget
@@ -69,6 +73,7 @@ public:
     void play();
     void run();
     static QString msToTime(qint64 ms, bool& overAnHour);
+    void updateThumbnail(const qint64& ms, const QPoint& cursorGlobalPosition);
 private:
     void mediaStateChanged(QMediaPlayer::PlaybackState state);
     void positionChanged(qint64 position);
@@ -102,12 +107,13 @@ private:
     Qt::WindowStates beforeFullscreenState;
     QString durationTime;
     bool keySpacePressIsAutoRepeat;
-    // std::chrono::time_point<std::chrono::steady_clock> startKeySpacePress;
+    QLabel thumbnailLabel;
 public:
     static constexpr int skipDuration = 7000; // in millisecond
     static constexpr float showControlPanelDuration = 3; // in second
     static constexpr float holdTreshold = 0.5; // in second
     static constexpr float doubleClickDelay = 0.5; // in second
+    static constexpr int thumbnailHeight = 100;
 };
 
 #endif
