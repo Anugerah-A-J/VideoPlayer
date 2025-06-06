@@ -10,35 +10,38 @@
 
 PositionSlider::PositionSlider(Qt::Orientation orientation, QWidget *parent):
     QSlider{orientation, parent},
-    mouseIsInsideMe{false}
+    mouseIsInsideMe{false},
+    timeLabel{nullptr, Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint} // without title bar
 {
     setMouseTracking(true);
-    // setToolTipDuration(VideoPlayer::showControlPanelDuration * 1000);
-    // setToolTip("");
     setCursor(Qt::PointingHandCursor);
 }
 
 void PositionSlider::mouseMoveEvent(QMouseEvent* e)
 {
-    // std::cout << "tool tip duration: " << toolTipDuration() << '\n';
     bool b;
-    QString text = VideoPlayer::msToTime(
-        e->position().x() / width() * maximum(),
-        b
-    );
+    ms = e->position().x() / width() * maximum();
+
+    QString text = VideoPlayer::msToTime(ms, b);
+
     QPoint position {
         static_cast<int>(e->position().x()),
-        height()
+        -height()
     };
-    QSize size {height() * 2, height()};
-    position.setX(position.x() - size.width() / 2);
-    QRect rect {position, size};
-    QToolTip::showText(
-        mapToGlobal(position),
-        text,
-        this,
-        rect
-    );
+
+    timeLabel.setText(text);
+    timeLabel.setFixedWidth(timeLabel.sizeHint().width());
+    position.setX(position.x() - timeLabel.size().width() / 2);
+    timeLabel.move(mapToGlobal(position));
+    timeLabel.show();
+}
+
+void PositionSlider::mousePressEvent(QMouseEvent*)
+{}
+
+void PositionSlider::mouseReleaseEvent(QMouseEvent*)
+{
+    setValue(ms);
 }
 
 void PositionSlider::enterEvent(QEnterEvent*)
@@ -49,6 +52,7 @@ void PositionSlider::enterEvent(QEnterEvent*)
 void PositionSlider::leaveEvent(QEvent*)
 {
     mouseIsInsideMe = false;
+    timeLabel.hide();
 }
 
 ControlPanel::ControlPanel(QWidget *parent):

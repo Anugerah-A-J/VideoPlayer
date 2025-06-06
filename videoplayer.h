@@ -23,9 +23,13 @@ public:
     PositionSlider(Qt::Orientation orientation, QWidget *parent = nullptr);
 private:
     void mouseMoveEvent(QMouseEvent*) override;
+    void mousePressEvent(QMouseEvent*) override;
+    void mouseReleaseEvent(QMouseEvent*) override;
     void enterEvent(QEnterEvent*) override;
     void leaveEvent(QEvent*) override;
     bool mouseIsInsideMe;
+    QLabel timeLabel;
+    qint64 ms;
 };
 
 class ControlPanel : public QWidget
