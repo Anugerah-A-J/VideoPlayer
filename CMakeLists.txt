@@ -15,7 +15,11 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Multimedia MultimediaWidgets Widge
 
 qt_add_executable(${PROJECT_NAME}
     main.cpp
-    videoplayer.cpp videoplayer.h
+    video_player.cpp video_player.h
+    control_panel.cpp control_panel.h
+    position_slider.cpp position_slider.h
+    frame_indexer.cpp frame_indexer.h
+    thumbnail.h thumbnail.cpp
 )
 
 # this close the terminal when app is running
@@ -30,6 +34,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     Qt::Multimedia
     Qt::MultimediaWidgets
     Qt::Widgets
+    ffms2
 )
 
 # config:
