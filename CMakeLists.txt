@@ -12,6 +12,7 @@ endif()
 set(INSTALL_EXAMPLEDIR "${INSTALL_EXAMPLESDIR}/multimedia/videographicsitem")
 
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Multimedia MultimediaWidgets Widgets)
+find_package(OpenCV REQUIRED)
 
 qt_add_executable(${PROJECT_NAME}
     main.cpp
@@ -35,13 +36,16 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     Qt::MultimediaWidgets
     Qt::Widgets
     ffms2
+    opencv_core
+    opencv_videoio
 )
 
 # config:
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 set(CMAKE_CXX_COMPILER g++)
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_INCLUDE_PATH "D:/c++/tools/msys64/ucrt64/include/opencv4")
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror -O)
+set(CMAKE_BUILD_TYPE Debug)
 # set(CMAKE_BUILD_TYPE Release)
 
 qt_add_ios_ffmpeg_libraries(${PROJECT_NAME})

@@ -185,43 +185,48 @@ QString VideoPlayer::msToTime(qint64 ms, bool& overAnHour)
     return time;
 }
 
-void VideoPlayer::updateThumbnail(const qint64& ms, const QPoint& cursorGlobalPositionOnTopOfSlider)
-{
-    const FFMS_Frame* frame = frameIndexer.getFrameByTime(ms * 0.001);
-    int i = 0;
-    QImage img = QImage(frame->Data[i], frame->ScaledWidth, frame->ScaledHeight, frame->Linesize[i], QImage::Format_RGBA8888);
-    QPixmap px = QPixmap::fromImage(img).scaledToHeight(thumbnailHeight);
-    controlPanel.positionSlider.thumbnail.pictureLabel.setPixmap(px);
-    controlPanel.positionSlider.thumbnail.move(cursorGlobalPositionOnTopOfSlider + QPoint(
-        -controlPanel.positionSlider.thumbnail.width() / 2,
-        -controlPanel.positionSlider.thumbnail.height()
-    ));
-    controlPanel.positionSlider.thumbnail.show();
-}
+// void VideoPlayer::updateThumbnail(const qint64& ms, const QPoint& cursorGlobalPositionOnTopOfSlider)
+// {
+    // const FFMS_Frame* frame = frameIndexer.getFrameByTime(ms * 0.001);
+    // int i = 0;
+    // QImage img = QImage(frame->Data[i], frame->ScaledWidth, frame->ScaledHeight, frame->Linesize[i], QImage::Format_RGBA8888);
+    // QPixmap px = QPixmap::fromImage(img).scaledToHeight(thumbnailHeight);
+    // controlPanel.positionSlider.thumbnail.pictureLabel.setPixmap(px);
+    // controlPanel.positionSlider.thumbnail.move(cursorGlobalPositionOnTopOfSlider + QPoint(
+    //     -controlPanel.positionSlider.thumbnail.width() / 2,
+    //     -controlPanel.positionSlider.thumbnail.height()
+    // ));
+    // controlPanel.positionSlider.thumbnail.show();
+// }
 
 void VideoPlayer::updateThumbnail()
 {
-    auto start{std::chrono::steady_clock::now()};
+    // auto start{std::chrono::steady_clock::now()};
 
-    const FFMS_Frame* frame = frameIndexer.getFrameByTime(
-        controlPanel.positionSlider.ms * 0.001
+    // const FFMS_Frame* frame = frameIndexer.getFrameByTime(
+    //     controlPanel.positionSlider.ms * 0.001
+    // );
+
+    // auto finish{std::chrono::steady_clock::now()};
+    // std::chrono::duration<double> elapsed_seconds{finish - start};
+    // std::cout << "ffms get frame: " << elapsed_seconds.count() << '\n';
+
+    // int i = 0;
+    // start = std::chrono::steady_clock::now();
+
+    // QImage img = QImage(frame->Data[i], frame->ScaledWidth, frame->ScaledHeight, frame->Linesize[i], QImage::Format_RGBA8888);
+
+    // finish = std::chrono::steady_clock::now();
+    // elapsed_seconds = finish - start;
+    // std::cout << "making qimage: " << elapsed_seconds.count() << '\n';
+
+    // QPixmap px = QPixmap::fromImage(img).scaledToHeight(thumbnailHeight);
+    // controlPanel.positionSlider.thumbnail.pictureLabel.setPixmap(px);
+    controlPanel.positionSlider.thumbnail.pictureLabel.setPixmap(
+        frameIndexer.getFrameByTime(
+            controlPanel.positionSlider.ms / 1000
+        )
     );
-
-    auto finish{std::chrono::steady_clock::now()};
-    std::chrono::duration<double> elapsed_seconds{finish - start};
-    std::cout << "ffms get frame: " << elapsed_seconds.count() << '\n';
-
-    int i = 0;
-    start = std::chrono::steady_clock::now();
-
-    QImage img = QImage(frame->Data[i], frame->ScaledWidth, frame->ScaledHeight, frame->Linesize[i], QImage::Format_RGBA8888);
-
-    finish = std::chrono::steady_clock::now();
-    elapsed_seconds = finish - start;
-    std::cout << "making qimage: " << elapsed_seconds.count() << '\n';
-
-    QPixmap px = QPixmap::fromImage(img).scaledToHeight(thumbnailHeight);
-    controlPanel.positionSlider.thumbnail.pictureLabel.setPixmap(px);
     controlPanel.positionSlider.thumbnail.move(controlPanel.positionSlider.cursorGlobalPositionOnTopOfSlider + QPoint(
         -controlPanel.positionSlider.thumbnail.width() / 2,
         -controlPanel.positionSlider.thumbnail.height()
