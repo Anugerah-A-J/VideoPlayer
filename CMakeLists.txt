@@ -1,4 +1,10 @@
 # cmake -G Ninja -B build
+# config:
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+set(CMAKE_CXX_COMPILER g++)
+set(CMAKE_INCLUDE_PATH "D:/c++/tools/msys64/ucrt64/include/opencv4")
+set(CMAKE_BUILD_TYPE Debug)
+# set(CMAKE_BUILD_TYPE Release)
 
 cmake_minimum_required(VERSION 3.16)
 project(vp LANGUAGES CXX)
@@ -40,13 +46,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     opencv_videoio
 )
 
-# config:
-set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
-set(CMAKE_CXX_COMPILER g++)
-set(CMAKE_INCLUDE_PATH "D:/c++/tools/msys64/ucrt64/include/opencv4")
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror -O)
-set(CMAKE_BUILD_TYPE Debug)
-# set(CMAKE_BUILD_TYPE Release)
 
 qt_add_ios_ffmpeg_libraries(${PROJECT_NAME})
 

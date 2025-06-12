@@ -75,7 +75,7 @@ public:
     static constexpr float holdTreshold             = 0.5; // in second
     static constexpr float doubleClickDelay         = 0.5; // in second
     static constexpr int thumbnailHeight            = 100;
-    static constexpr int updateFrameInterval        = 200; // in millisecond
+    static constexpr int updateFrameInterval        = 100; // in millisecond
 };
 
 #endif
