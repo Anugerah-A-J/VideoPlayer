@@ -25,7 +25,7 @@ qt_add_executable(${PROJECT_NAME}
     video_player.cpp video_player.h
     control_panel.cpp control_panel.h
     position_slider.cpp position_slider.h
-    frame_indexer.cpp frame_indexer.h
+    # frame_indexer.cpp frame_indexer.h
     thumbnail.h thumbnail.cpp
 )
 

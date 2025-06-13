@@ -5,6 +5,8 @@
 #include <QLabel>
 // #include <QGridLayout>
 #include <QVBoxLayout>
+#include <QMediaPlayer>
+#include <QVideoSink>
 
 class Thumbnail : public QWidget
 {
@@ -13,9 +15,11 @@ friend class VideoPlayer;
 public:
     Thumbnail();
 private:
+    // void paintEvent(QPaintEvent*) override;
+    // QMediaPlayer mediaPlayer;
+    // QVideoSink videoSink;
     QLabel pictureLabel;
     QLabel timeLabel;
-    // QGridLayout layout;
     QVBoxLayout layout;
 };
 

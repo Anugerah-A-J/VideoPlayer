@@ -7,15 +7,12 @@
 #include <QVideoFrame>
 #include <QPainter>
 #include <iostream>
+#include <qpixmap.h>
 
 VideoPlayer::VideoPlayer(QWidget *parent):
     QWidget{parent},
     openFileButton{"Open"},
     updateFrameTicksCount{0}
-    // thumbnailLabel{nullptr, Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint} // without title bar and always on top
-    // thumbnailPicture{nullptr, Qt::WindowTransparentForInput}
-    // keySpacePressed{false},
-    // startKeySpacePress{std::chrono::steady_clock::now()}
     // ,graphicsView{&scene}
 {
     // scene.addItem(&videoItem);
@@ -33,13 +30,15 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     setLayout(&layout);
 
     // mediaPlayer.setVideoOutput(&videoItem);
-    mediaPlayer.setAudioOutput(&audioOutput);
+    // mediaPlayer.setAudioOutput(&audioOutput);
     mediaPlayer.setVideoSink(&videoSink);
     connect(&mediaPlayer, &QMediaPlayer::errorOccurred, this, &VideoPlayer::printError);
     connect(&mediaPlayer, &QMediaPlayer::playbackStateChanged, this, &VideoPlayer::mediaStateChanged);
     connect(&mediaPlayer, &QMediaPlayer::positionChanged, this, &VideoPlayer::positionChanged);
     connect(&mediaPlayer, &QMediaPlayer::durationChanged, this, &VideoPlayer::durationChanged);
     connect(&videoSink, &QVideoSink::videoFrameChanged, this, QOverload<>::of(&VideoPlayer::update));
+    thumbnailMediaPlayer.setVideoSink(&thumbnailVideoSink);
+    connect(&thumbnailVideoSink, &QVideoSink::videoFrameChanged, this, QOverload<>::of(&VideoPlayer::updateThumbnail));
 
     // graphicsView.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     // graphicsView.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -105,8 +104,8 @@ void VideoPlayer::run()
 void VideoPlayer::load(const QUrl &url)
 {
     mediaPlayer.setSource(url);
-    frameIndexer.load(url);
-    // thumbnailMediaPlayer.setSource(url);
+    // frameIndexer.load(url);
+    thumbnailMediaPlayer.setSource(url);
     controlPanel.playButton.setEnabled(true);
 }
 
@@ -222,16 +221,44 @@ void VideoPlayer::updateThumbnail()
 
     // QPixmap px = QPixmap::fromImage(img).scaledToHeight(thumbnailHeight);
     // controlPanel.positionSlider.thumbnail.pictureLabel.setPixmap(px);
-    controlPanel.positionSlider.thumbnail.pictureLabel.setPixmap(
-        frameIndexer.getFrameByTime(
-            controlPanel.positionSlider.ms / 1000
-        )
-    );
-    controlPanel.positionSlider.thumbnail.move(controlPanel.positionSlider.cursorGlobalPositionOnTopOfSlider + QPoint(
-        -controlPanel.positionSlider.thumbnail.width() / 2,
-        -controlPanel.positionSlider.thumbnail.height()
-    ));
-    controlPanel.positionSlider.thumbnail.show();
+    if (controlPanel.positionSlider.thumbnail.pictureLabel.height() < thumbnailHeight)
+    {
+        controlPanel.positionSlider.thumbnail.pictureLabel.setPixmap(
+        //     frameIndexer.getFrameByTime(
+        //         controlPanel.positionSlider.ms
+        //     )
+            // QPixmap::fromImage(
+            //     thumbnailVideoSink.videoFrame().toImage()
+            // ).scaledToHeight(thumbnailHeight)
+            QPixmap::fromImage(
+                videoSink.videoFrame().toImage()
+            ).scaledToHeight(thumbnailHeight)
+        );
+        controlPanel.positionSlider.thumbnail.move(controlPanel.positionSlider.cursorGlobalPositionOnTopOfSlider + QPoint(
+            -controlPanel.positionSlider.thumbnail.width() / 2,
+            -controlPanel.positionSlider.thumbnail.height()
+        ));
+        controlPanel.positionSlider.thumbnail.show();
+    }
+    else
+    {
+        controlPanel.positionSlider.thumbnail.move(controlPanel.positionSlider.cursorGlobalPositionOnTopOfSlider + QPoint(
+            -controlPanel.positionSlider.thumbnail.width() / 2,
+            -controlPanel.positionSlider.thumbnail.height()
+        ));
+        controlPanel.positionSlider.thumbnail.show();
+        controlPanel.positionSlider.thumbnail.pictureLabel.setPixmap(
+        //     frameIndexer.getFrameByTime(
+        //         controlPanel.positionSlider.ms
+        //     )
+            // QPixmap::fromImage(
+            //     thumbnailVideoSink.videoFrame().toImage()
+            // ).scaledToHeight(thumbnailHeight)
+            QPixmap::fromImage(
+               videoSink.videoFrame().toImage()
+            ).scaledToHeight(thumbnailHeight)
+        );
+    }
 }
 
 void VideoPlayer::durationChanged(qint64 duration)
@@ -287,6 +314,8 @@ void VideoPlayer::timeEvent()
     if (controlPanel.positionSlider.mouseIsInsideMe && controlPanel.positionSlider.timeTextChanged && updateFrameTicksCount == updateFrameInterval / timeEventInterval)
     {
         updateThumbnail();
+        // thumbnailMediaPlayer.setPosition(controlPanel.positionSlider.ms);
+
         controlPanel.positionSlider.timeTextChanged = false;
         updateFrameTicksCount = 0;
     }
