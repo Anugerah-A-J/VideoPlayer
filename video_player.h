@@ -53,8 +53,6 @@ private:
     ControlPanel controlPanel;
     QMediaPlayer mediaPlayer;
     QVideoSink videoSink;
-    QMediaPlayer thumbnailMediaPlayer;
-    QVideoSink thumbnailVideoSink;
     QPushButton openFileButton;
     // QGraphicsScene scene;
     // QGraphicsVideoItem videoItem;
@@ -65,7 +63,7 @@ private:
     Qt::WindowStates beforeFullscreenState;
     QString durationTime;
     bool keySpacePressIsAutoRepeat;
-    // FrameIndexer frameIndexer;
+    FrameIndexer frameIndexer;
     int updateFrameTicksCount;
 public:
     static constexpr int timeEventInterval          = 100; // in millisecond

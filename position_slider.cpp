@@ -9,7 +9,6 @@ PositionSlider::PositionSlider(Qt::Orientation orientation, QWidget *parent):
 {
     setMouseTracking(true);
     setCursor(Qt::PointingHandCursor);
-    // thumbnail.hide();
 }
 
 void PositionSlider::mouseMoveEvent(QMouseEvent* e)

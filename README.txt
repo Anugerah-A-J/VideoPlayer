@@ -8,9 +8,8 @@ VideoPlayer
 [x] Double click on mouse left button to enter/exit fullscreen
 [x] Hold mouse left button to play 2x
 [x] Single click on mouse left button to play/pause
-[ ] Hover over slider to show thumbnail
-[ ] Hide cursor
-[ ] CloseEvent ??
+[x] Hover over slider to show thumbnail
+[x] Hide cursor
 [ ] Hold mouse right button and scroll mouse wheel to zoom in
 [ ] Drag using mouse right button to pan when zoom scale > 100 %
 

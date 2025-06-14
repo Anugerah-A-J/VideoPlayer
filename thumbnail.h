@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include <QLabel>
-// #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QMediaPlayer>
 #include <QVideoSink>
@@ -15,9 +14,6 @@ friend class VideoPlayer;
 public:
     Thumbnail();
 private:
-    // void paintEvent(QPaintEvent*) override;
-    // QMediaPlayer mediaPlayer;
-    // QVideoSink videoSink;
     QLabel pictureLabel;
     QLabel timeLabel;
     QVBoxLayout layout;

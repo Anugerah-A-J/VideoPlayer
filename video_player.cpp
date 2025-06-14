@@ -7,6 +7,7 @@
 #include <QVideoFrame>
 #include <QPainter>
 #include <iostream>
+#include <qnamespace.h>
 #include <qpixmap.h>
 
 VideoPlayer::VideoPlayer(QWidget *parent):
@@ -30,15 +31,13 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     setLayout(&layout);
 
     // mediaPlayer.setVideoOutput(&videoItem);
-    // mediaPlayer.setAudioOutput(&audioOutput);
+    mediaPlayer.setAudioOutput(&audioOutput);
     mediaPlayer.setVideoSink(&videoSink);
     connect(&mediaPlayer, &QMediaPlayer::errorOccurred, this, &VideoPlayer::printError);
     connect(&mediaPlayer, &QMediaPlayer::playbackStateChanged, this, &VideoPlayer::mediaStateChanged);
     connect(&mediaPlayer, &QMediaPlayer::positionChanged, this, &VideoPlayer::positionChanged);
     connect(&mediaPlayer, &QMediaPlayer::durationChanged, this, &VideoPlayer::durationChanged);
     connect(&videoSink, &QVideoSink::videoFrameChanged, this, QOverload<>::of(&VideoPlayer::update));
-    thumbnailMediaPlayer.setVideoSink(&thumbnailVideoSink);
-    connect(&thumbnailVideoSink, &QVideoSink::videoFrameChanged, this, QOverload<>::of(&VideoPlayer::updateThumbnail));
 
     // graphicsView.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     // graphicsView.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -46,6 +45,7 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     connect(&timer, &QTimer::timeout, this, QOverload<>::of(&VideoPlayer::timeEvent));
     timer.start(timeEventInterval);
     controlPanel.hide();
+    setCursor(Qt::BlankCursor);
     resize(640, 480);
     setMouseTracking(true);
     // connect(&controlPanel.positionSlider, &PositionSlider::timeTextChanged, this, &VideoPlayer::updateThumbnail);
@@ -91,6 +91,7 @@ void VideoPlayer::openFile()
         // thumbnailMediaPlayer.pause();
         openFileButton.hide();
         controlPanel.show();
+        setCursor(Qt::ArrowCursor);
     }
 }
 
@@ -99,13 +100,13 @@ void VideoPlayer::run()
     play();
     openFileButton.hide();
     controlPanel.show();
+    setCursor(Qt::ArrowCursor);
 }
 
 void VideoPlayer::load(const QUrl &url)
 {
     mediaPlayer.setSource(url);
-    // frameIndexer.load(url);
-    thumbnailMediaPlayer.setSource(url);
+    frameIndexer.load(url);
     controlPanel.playButton.setEnabled(true);
 }
 
@@ -132,6 +133,7 @@ void VideoPlayer::mediaStateChanged(QMediaPlayer::PlaybackState state)
     default:
         controlPanel.playButton.setIcon(controlPanel.playIcon);
         controlPanel.show();
+        setCursor(Qt::ArrowCursor);
         break;
     }
 }
@@ -224,15 +226,9 @@ void VideoPlayer::updateThumbnail()
     if (controlPanel.positionSlider.thumbnail.pictureLabel.height() < thumbnailHeight)
     {
         controlPanel.positionSlider.thumbnail.pictureLabel.setPixmap(
-        //     frameIndexer.getFrameByTime(
-        //         controlPanel.positionSlider.ms
-        //     )
-            // QPixmap::fromImage(
-            //     thumbnailVideoSink.videoFrame().toImage()
-            // ).scaledToHeight(thumbnailHeight)
-            QPixmap::fromImage(
-                videoSink.videoFrame().toImage()
-            ).scaledToHeight(thumbnailHeight)
+            frameIndexer.getFrameByTime(
+                controlPanel.positionSlider.ms
+            )
         );
         controlPanel.positionSlider.thumbnail.move(controlPanel.positionSlider.cursorGlobalPositionOnTopOfSlider + QPoint(
             -controlPanel.positionSlider.thumbnail.width() / 2,
@@ -248,15 +244,9 @@ void VideoPlayer::updateThumbnail()
         ));
         controlPanel.positionSlider.thumbnail.show();
         controlPanel.positionSlider.thumbnail.pictureLabel.setPixmap(
-        //     frameIndexer.getFrameByTime(
-        //         controlPanel.positionSlider.ms
-        //     )
-            // QPixmap::fromImage(
-            //     thumbnailVideoSink.videoFrame().toImage()
-            // ).scaledToHeight(thumbnailHeight)
-            QPixmap::fromImage(
-               videoSink.videoFrame().toImage()
-            ).scaledToHeight(thumbnailHeight)
+            frameIndexer.getFrameByTime(
+                controlPanel.positionSlider.ms
+            )
         );
     }
 }
@@ -302,7 +292,10 @@ void VideoPlayer::timeEvent()
         mediaPlayer.playbackState() == QMediaPlayer::PlayingState &&
         !controlPanel.positionSlider.mouseIsInsideMe
     )
+    {
         controlPanel.hide();
+        setCursor(Qt::BlankCursor);
+    }
 
     duration = finish - controlPanel.startMouseLeftPress;
     if (duration.count() > holdTreshold && controlPanel.mouseLeftPressed)
@@ -314,7 +307,6 @@ void VideoPlayer::timeEvent()
     if (controlPanel.positionSlider.mouseIsInsideMe && controlPanel.positionSlider.timeTextChanged && updateFrameTicksCount == updateFrameInterval / timeEventInterval)
     {
         updateThumbnail();
-        // thumbnailMediaPlayer.setPosition(controlPanel.positionSlider.ms);
 
         controlPanel.positionSlider.timeTextChanged = false;
         updateFrameTicksCount = 0;
@@ -352,11 +344,13 @@ void VideoPlayer::keyReleaseEvent(QKeyEvent* e)
     case Qt::Key_Left:
         controlPanel.positionSlider.setValue(controlPanel.positionSlider.value() - skipDuration);
         controlPanel.show();
+        setCursor(Qt::ArrowCursor);
         controlPanel.startShowChildren = std::chrono::steady_clock::now();
         break;
     case Qt::Key_Right:
         controlPanel.positionSlider.setValue(controlPanel.positionSlider.value() + skipDuration);
         controlPanel.show();
+        setCursor(Qt::ArrowCursor);
         controlPanel.startShowChildren = std::chrono::steady_clock::now();
         break;
     case Qt::Key_Space:
@@ -364,6 +358,7 @@ void VideoPlayer::keyReleaseEvent(QKeyEvent* e)
         {
             play();
             controlPanel.show();
+            setCursor(Qt::ArrowCursor);
             controlPanel.startShowChildren = std::chrono::steady_clock::now();
         }
         else if (!e->isAutoRepeat() && keySpacePressIsAutoRepeat)
@@ -391,6 +386,7 @@ void VideoPlayer::leaveEvent(QEvent*)
 void VideoPlayer::mouseMoveEvent(QMouseEvent*)
 {
     controlPanel.show();
+    setCursor(Qt::ArrowCursor);
     controlPanel.startShowChildren = std::chrono::steady_clock::now();
 }
 
@@ -421,6 +417,7 @@ void VideoPlayer::mouseReleaseEvent(QMouseEvent* e)
         if (clickDuration.count() <= holdTreshold)
         {
             controlPanel.show();
+            setCursor(Qt::ArrowCursor);
             controlPanel.startShowChildren = std::chrono::steady_clock::now();
             play();
 

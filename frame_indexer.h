@@ -9,8 +9,8 @@
 #include <QVideoSink>
 
 // #define use_FFMS
-// #define use_OpenCV
-#define use_Qt
+#define use_OpenCV
+// #define use_Qt
 
 class FrameIndexer
 {

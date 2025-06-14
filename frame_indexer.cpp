@@ -1,5 +1,6 @@
 #include "frame_indexer.h"
 #include <iostream>
+#include <QVideoFrame>
 #include "video_player.h"
 
 FrameIndexer::FrameIndexer()
@@ -16,7 +17,7 @@ FrameIndexer::FrameIndexer()
 #endif
 #ifdef use_Qt
     mediaPlayer.setVideoSink(&videoSink);
-    connect(&videoSink, &QVideoSink::videoFrameChanged, this, QOverload<>::of(&VideoPlayer::update));
+    // connect(&thumbnailVideoSink, &QVideoSink::videoFrameChanged, this, QOverload<>::of(&VideoPlayer::updateThumbnail));
 #endif
 }
 
@@ -35,8 +36,7 @@ void FrameIndexer::load(const QUrl& url)
     const std::string filename = url.fileName().toStdString();
     const std::string filepath = url.path().toStdString();
 #ifdef use_FFMS
-    // const char *sourcefile = &filepath.front();
-    const char *sourcefile = &filename.front();
+    const char *sourcefile = &filepath.at(1);
     std::cout << sourcefile << std::endl;
 
     indexer = FFMS_CreateIndexer(sourcefile, &errinfo);
@@ -82,6 +82,9 @@ void FrameIndexer::load(const QUrl& url)
     propframe->EncodedHeight; (frame height in pixels)
     propframe->EncodedPixelFormat; (actual frame colorspace)
     */
+    std::cout << "propframe->EncodedWidth      : " << propframe->EncodedWidth << std::endl;
+    std::cout << "propframe->EncodedHeight     : " << propframe->EncodedHeight << std::endl;
+    std::cout << "propframe->EncodedPixelFormat: " << propframe->EncodedPixelFormat << std::endl;
 
     /* If you want to change the output colorspace or resize the output frame size,
     now is the time to do it. IMPORTANT: This step is also required to prevent
@@ -120,9 +123,10 @@ void FrameIndexer::load(const QUrl& url)
         std::cout << errmsg << '\n';
 #endif
 #ifdef use_OpenCV
-    std::cout << filename << std::endl;
+    const char *sourcefile = &filepath.at(1);
+    std::cout << sourcefile << std::endl;
 
-    cap = cv::VideoCapture(filename);
+    cap = cv::VideoCapture(sourcefile);
 	if (!cap.isOpened())
         std::cout << "OpenCV Couldn't open video file.\n";
 	else
@@ -136,6 +140,9 @@ void FrameIndexer::load(const QUrl& url)
 		// std::cout << "delta time: " << delta_time << " ms" << std::endl;
 	}
 #endif
+#ifdef use_Qt
+    mediaPlayer.setSource(url);
+#endif
 }
 
 QPixmap FrameIndexer::getFrameByTime(uint ms)
@@ -146,6 +153,7 @@ QPixmap FrameIndexer::getFrameByTime(uint ms)
 
     if (curframe == NULL)
     {
+        std::cout << errmsg << '\n';
         img = QImage(
             curframe->ScaledWidth,
             curframe->ScaledHeight,
@@ -165,7 +173,7 @@ QPixmap FrameIndexer::getFrameByTime(uint ms)
         );
     }
 
-    return QPixmap::fromImage(img, Qt::NoFormatConversion).scaledToHeight(VideoPlayer::thumbnailHeight);
+    return QPixmap::fromImage(img).scaledToHeight(VideoPlayer::thumbnailHeight);
 #endif
 #ifdef use_OpenCV
     QImage img;
@@ -191,6 +199,13 @@ QPixmap FrameIndexer::getFrameByTime(uint ms)
         img.fill(QColor(128, 128, 128));
     }
 
-    return QPixmap::fromImage(img, Qt::NoFormatConversion).scaledToHeight(VideoPlayer::thumbnailHeight);
+    // return QPixmap::fromImage(img, Qt::NoFormatConversion).scaledToHeight(VideoPlayer::thumbnailHeight);
+    return QPixmap::fromImage(img).scaledToHeight(VideoPlayer::thumbnailHeight);
+#endif
+#ifdef use_Qt
+    QImage img;
+    mediaPlayer.setPosition(ms);
+    img = videoSink.videoFrame().toImage();
+    return QPixmap::fromImage(img).scaledToHeight(VideoPlayer::thumbnailHeight);
 #endif
 }
