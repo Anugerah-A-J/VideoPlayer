@@ -3,9 +3,9 @@
 
 ControlPanel::ControlPanel(QWidget *parent):
     QWidget{parent},
-    mouseLeftPressed{false},
-    itsALeftClick{false},
-    alreadyLeftClickedOnce{false},
+    // mouseLeftPressed{false},
+    // itsALeftClick{false},
+    // alreadyLeftClickedOnce{false},
     positionSlider{Qt::Horizontal},
     playIcon{"icon/play_arrow.svg"},
     pauseIcon{"icon/pause.svg"},

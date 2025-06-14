@@ -41,7 +41,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     Qt::Multimedia
     Qt::MultimediaWidgets
     Qt::Widgets
-    ffms2
     opencv_core
     opencv_videoio
 )

@@ -39,8 +39,10 @@ private:
     void timeEvent();
     void toggleFullscreen();
     void printError(QMediaPlayer::Error error, const QString &errorString);
+    void fitAndCenterFrameRect();
+    void zoomFrameRect(const QPointF&, float zoomFactor);
 
-    // void resizeEvent(QResizeEvent*) override;
+    void resizeEvent(QResizeEvent*) override;
     void keyPressEvent(QKeyEvent*) override;
     void keyReleaseEvent(QKeyEvent*) override;
     void paintEvent(QPaintEvent*) override;
@@ -48,6 +50,14 @@ private:
     void mouseMoveEvent(QMouseEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
     void mouseReleaseEvent(QMouseEvent*) override;
+	void wheelEvent(QWheelEvent*) override;
+    bool mouseLeftPressed;
+    bool mouseRightPressed;
+    std::chrono::time_point<std::chrono::steady_clock> startMouseLeftPress;
+    std::chrono::time_point<std::chrono::steady_clock> startMouseLeftRelease;
+    bool itsALeftClick;
+    bool alreadyLeftClickedOnce;
+    std::chrono::time_point<std::chrono::steady_clock> startShowChildren;
     // void showEvent(QShowEvent*) override;
 
     ControlPanel controlPanel;
@@ -64,8 +74,12 @@ private:
     QString durationTime;
     bool keySpacePressIsAutoRepeat;
     FrameIndexer frameIndexer;
+    QRect frameRect;
+    QPointF oldMousePosition;
     int updateFrameTicksCount;
 public:
+    static constexpr int width = 640;
+    static constexpr int height = 480;
     static constexpr int timeEventInterval          = 100; // in millisecond
     static constexpr int skipDuration               = 7000; // in millisecond
     static constexpr float showControlPanelDuration = 3; // in second

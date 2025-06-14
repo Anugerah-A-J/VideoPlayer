@@ -12,6 +12,10 @@
 
 VideoPlayer::VideoPlayer(QWidget *parent):
     QWidget{parent},
+    mouseLeftPressed{false},
+    mouseRightPressed{false},
+    itsALeftClick{false},
+    alreadyLeftClickedOnce{false},
     openFileButton{"Open"},
     updateFrameTicksCount{0}
     // ,graphicsView{&scene}
@@ -46,7 +50,7 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     timer.start(timeEventInterval);
     controlPanel.hide();
     setCursor(Qt::BlankCursor);
-    resize(640, 480);
+    resize(width, height);
     setMouseTracking(true);
     // connect(&controlPanel.positionSlider, &PositionSlider::timeTextChanged, this, &VideoPlayer::updateThumbnail);
     // thumbnailMediaPlayer.setVideoSink(&thumbnailVideoSink);
@@ -286,7 +290,7 @@ void VideoPlayer::timeEvent()
     const auto finish = std::chrono::steady_clock::now();
     std::chrono::duration<float> duration;
 
-    duration = finish - controlPanel.startShowChildren;
+    duration = finish - startShowChildren;
     if (
         duration.count() > showControlPanelDuration &&
         mediaPlayer.playbackState() == QMediaPlayer::PlayingState &&
@@ -297,10 +301,10 @@ void VideoPlayer::timeEvent()
         setCursor(Qt::BlankCursor);
     }
 
-    duration = finish - controlPanel.startMouseLeftPress;
-    if (duration.count() > holdTreshold && controlPanel.mouseLeftPressed)
+    duration = finish - startMouseLeftPress;
+    if (duration.count() > holdTreshold && mouseLeftPressed)
     {
-        controlPanel.itsALeftClick = false;
+        itsALeftClick = false;
         mediaPlayer.setPlaybackRate(2);
     }
 
@@ -316,10 +320,12 @@ void VideoPlayer::timeEvent()
         updateFrameTicksCount++;
 }
 
-// void VideoPlayer::resizeEvent(QResizeEvent*)
-// {
-//     graphicsView.fitInView(&videoItem, Qt::KeepAspectRatio);
-// }
+void VideoPlayer::resizeEvent(QResizeEvent*)
+{
+    // graphicsView.fitInView(&videoItem, Qt::KeepAspectRatio);
+    // if (frameRect.x() < rect().x() || frameRect.y() < rect().y())
+        fitAndCenterFrameRect();
+}
 
 void VideoPlayer::keyPressEvent(QKeyEvent* e)
 {
@@ -345,13 +351,13 @@ void VideoPlayer::keyReleaseEvent(QKeyEvent* e)
         controlPanel.positionSlider.setValue(controlPanel.positionSlider.value() - skipDuration);
         controlPanel.show();
         setCursor(Qt::ArrowCursor);
-        controlPanel.startShowChildren = std::chrono::steady_clock::now();
+        startShowChildren = std::chrono::steady_clock::now();
         break;
     case Qt::Key_Right:
         controlPanel.positionSlider.setValue(controlPanel.positionSlider.value() + skipDuration);
         controlPanel.show();
         setCursor(Qt::ArrowCursor);
-        controlPanel.startShowChildren = std::chrono::steady_clock::now();
+        startShowChildren = std::chrono::steady_clock::now();
         break;
     case Qt::Key_Space:
         if (!e->isAutoRepeat() && !keySpacePressIsAutoRepeat)
@@ -359,7 +365,7 @@ void VideoPlayer::keyReleaseEvent(QKeyEvent* e)
             play();
             controlPanel.show();
             setCursor(Qt::ArrowCursor);
-            controlPanel.startShowChildren = std::chrono::steady_clock::now();
+            startShowChildren = std::chrono::steady_clock::now();
         }
         else if (!e->isAutoRepeat() && keySpacePressIsAutoRepeat)
             mediaPlayer.setPlaybackRate(1);
@@ -367,11 +373,46 @@ void VideoPlayer::keyReleaseEvent(QKeyEvent* e)
     }
 }
 
+void VideoPlayer::fitAndCenterFrameRect()
+{
+    int window_width = rect().width();
+    int window_height = rect().height();
+    int frame_width = videoSink.videoFrame().width();
+    int frame_height = videoSink.videoFrame().height();
+
+    if (window_width * frame_height > frame_width * window_height) // window too wide
+    {
+        frameRect.setY(0);
+        frameRect.setHeight(window_height);
+        frameRect.setWidth(frameRect.height() * frame_width / frame_height);
+        frameRect.setX((window_width - frameRect.width()) / 2);
+    }
+    else if (window_width * frame_height < frame_width * window_height)
+    {
+        frameRect.setX(0);
+        frameRect.setWidth(window_width);
+        frameRect.setHeight(frameRect.width() * frame_height / frame_width);
+        frameRect.setY((window_height - frameRect.height()) / 2);
+    }
+    else
+    {
+        frameRect.setX(0);
+        frameRect.setY(0);
+        frameRect.setWidth(window_width);
+        frameRect.setHeight(window_height);
+    }
+}
+
 void VideoPlayer::paintEvent(QPaintEvent*)
 {
+    if (frameRect.isNull())
+        fitAndCenterFrameRect();
+
     QPainter painter{this};
     QVideoFrame::PaintOptions paintOptions;
-    videoSink.videoFrame().paint(&painter, rect(), paintOptions);
+    // qDebug() << rect();
+    // videoSink.videoFrame().paint(&painter, rect(), paintOptions);
+    videoSink.videoFrame().paint(&painter, frameRect, paintOptions);
 }
 
 void VideoPlayer::leaveEvent(QEvent*)
@@ -383,19 +424,73 @@ void VideoPlayer::leaveEvent(QEvent*)
 // {
 // }
 
-void VideoPlayer::mouseMoveEvent(QMouseEvent*)
+void VideoPlayer::mouseMoveEvent(QMouseEvent* e)
 {
-    controlPanel.show();
-    setCursor(Qt::ArrowCursor);
-    controlPanel.startShowChildren = std::chrono::steady_clock::now();
+    if (!mouseRightPressed)
+    {
+        controlPanel.show();
+        setCursor(Qt::ArrowCursor);
+        startShowChildren = std::chrono::steady_clock::now();
+    }
+    // else if (frameRect.width() > rect().width() || frameRect.height() > rect().height())
+    else
+    {
+        int dx = e->position().x() - oldMousePosition.x();
+        int dy = e->position().y() - oldMousePosition.y();
+        frameRect.translate(dx, dy);
+        // if ()
+
+        oldMousePosition = e->position();
+    }
+}
+
+void VideoPlayer::wheelEvent(QWheelEvent* e)
+{
+    QPoint numDegrees = e->angleDelta() / 8;
+
+    if (!numDegrees.isNull() && mouseRightPressed)
+    {
+        QPoint numSteps = numDegrees / 15; // (0, 1) or (0, -1)
+        numSteps *= 1;
+        constexpr float zoomFactor = 1.1;
+        if (numSteps.y() < 0)
+            zoomFrameRect(e->position(), 1 / zoomFactor);
+        else if (numSteps.y() > 0)
+            zoomFrameRect(e->position(), zoomFactor);
+
+        // if (shiftIsPressed)
+        //     scrollWithDegreesHorizontally(10 * numSteps.y());
+        // else
+        //     scrollWithDegreesVertically(10 * numSteps.y());
+
+        // qDebug() << "numSteps  : " << numSteps;
+    }
+}
+
+void VideoPlayer::zoomFrameRect(const QPointF& anchor, float zoomFactor) // bounded so zoom scale >= 100%
+{
+    int dx = anchor.x() - frameRect.x();
+    int dy = anchor.y() - frameRect.y();
+
+    frameRect.setX(anchor.x() - dx * zoomFactor);
+    frameRect.setY(anchor.y() - dy * zoomFactor);
+
+    frameRect.setWidth(frameRect.width() * zoomFactor);
+    frameRect.setHeight(frameRect.height() * zoomFactor);
 }
 
 void VideoPlayer::mousePressEvent(QMouseEvent* e)
 {
     if (e->button() == Qt::LeftButton)
     {
-        controlPanel.startMouseLeftPress = std::chrono::steady_clock::now();
-        controlPanel.mouseLeftPressed = true;
+        startMouseLeftPress = std::chrono::steady_clock::now();
+        mouseLeftPressed = true;
+    }
+    else if (e->button() == Qt::RightButton)
+    {
+        mouseRightPressed = true;
+        setCursor(Qt::ClosedHandCursor);
+        oldMousePosition = e->position();
     }
 }
 
@@ -406,32 +501,37 @@ void VideoPlayer::mouseReleaseEvent(QMouseEvent* e)
         // if you use the commented one, the time is inaccurate
         // const auto duration = (std::chrono::steady_clock::now() - controlPanel.startMouseLeftPress).count();
         const auto finish = std::chrono::steady_clock::now();
-        std::chrono::duration<float> clickDuration{finish - controlPanel.startMouseLeftPress};
-        std::chrono::duration<float> clickInterval{controlPanel.startMouseLeftPress - controlPanel.startMouseLeftRelease};
+        std::chrono::duration<float> clickDuration{finish - startMouseLeftPress};
+        std::chrono::duration<float> clickInterval{startMouseLeftPress - startMouseLeftRelease};
 
         // std::cout << duration << " s\n";
         std::cout << clickDuration.count() << " s\n";
 
-        controlPanel.mouseLeftPressed = false;
+        mouseLeftPressed = false;
 
         if (clickDuration.count() <= holdTreshold)
         {
             controlPanel.show();
             setCursor(Qt::ArrowCursor);
-            controlPanel.startShowChildren = std::chrono::steady_clock::now();
+            startShowChildren = std::chrono::steady_clock::now();
             play();
 
-            if (controlPanel.itsALeftClick && clickInterval.count() < doubleClickDelay && controlPanel.alreadyLeftClickedOnce)
+            if (itsALeftClick && clickInterval.count() < doubleClickDelay && alreadyLeftClickedOnce)
                 toggleFullscreen();
 
-            controlPanel.itsALeftClick = true;
+            itsALeftClick = true;
         }
 
         mediaPlayer.setPlaybackRate(1);
 
-        if (!controlPanel.alreadyLeftClickedOnce)
-            controlPanel.alreadyLeftClickedOnce = true;
-        controlPanel.startMouseLeftRelease = finish;
+        if (!alreadyLeftClickedOnce)
+            alreadyLeftClickedOnce = true;
+        startMouseLeftRelease = finish;
+    }
+    if (e->button() == Qt::RightButton)
+    {
+        mouseRightPressed = false;
+        setCursor(Qt::ArrowCursor);
     }
 }
 
