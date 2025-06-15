@@ -15,6 +15,7 @@ private:
     void mouseMoveEvent(QMouseEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
     void mouseReleaseEvent(QMouseEvent*) override;
+	void wheelEvent(QWheelEvent*) override;
 
     // bool mouseLeftPressed;
     // std::chrono::time_point<std::chrono::steady_clock> startMouseLeftPress;

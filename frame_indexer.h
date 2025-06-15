@@ -17,7 +17,7 @@ class FrameIndexer
 public:
     FrameIndexer();
     ~FrameIndexer();
-    void load(const QUrl& url);
+    void load(const QUrl& url, int& w, int& h);
     QPixmap getFrameByTime(uint ms);
 private:
 #ifdef use_FFMS

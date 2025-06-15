@@ -1,7 +1,7 @@
 VideoPlayer
 
 [x] Show time over duration
-[ ] Show map when zoom scale > 100 %
+[x] Show map when zoom scale > 100 %
 [ ] Loop button
 [ ] Stay on top button
 
@@ -10,8 +10,8 @@ VideoPlayer
 [x] Single click on mouse left button to play/pause
 [x] Hover over slider to show thumbnail
 [x] Hide cursor
-[ ] Hold mouse right button and scroll mouse wheel to zoom in
-[ ] Drag using mouse right button to pan when zoom scale > 100 %
+[-] Hold mouse right button and scroll mouse wheel to zoom in
+[-] Drag using mouse right button to pan when zoom scale > 100 %
 
 [x] Hit right key to skip forward 7 sec.
 [x] Hit left key to skip backward 7 sec.

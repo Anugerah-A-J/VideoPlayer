@@ -48,3 +48,8 @@ void ControlPanel::mouseReleaseEvent(QMouseEvent* e)
 {
     static_cast<VideoPlayer*>(parentWidget())->mouseReleaseEvent(e);
 }
+
+void ControlPanel::wheelEvent(QWheelEvent* e)
+{
+    static_cast<VideoPlayer*>(parentWidget())->wheelEvent(e);
+}

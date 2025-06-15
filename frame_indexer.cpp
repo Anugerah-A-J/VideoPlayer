@@ -31,9 +31,8 @@ FrameIndexer::~FrameIndexer()
 #endif
 }
 
-void FrameIndexer::load(const QUrl& url)
+void FrameIndexer::load(const QUrl& url, int& w, int& h)
 {
-    const std::string filename = url.fileName().toStdString();
     const std::string filepath = url.path().toStdString();
 #ifdef use_FFMS
     const char *sourcefile = &filepath.at(1);
@@ -131,9 +130,12 @@ void FrameIndexer::load(const QUrl& url)
         std::cout << "OpenCV Couldn't open video file.\n";
 	else
 	{
+        w = cap.get(cv::CAP_PROP_FRAME_WIDTH);
+		h = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
+
 		std::cout << "frame width : " << cap.get(cv::CAP_PROP_FRAME_WIDTH) << std::endl;
 		std::cout << "frame height: " << cap.get(cv::CAP_PROP_FRAME_HEIGHT) << std::endl;
-		std::cout << "frame count : " << cap.get(cv::CAP_PROP_FRAME_COUNT) << std::endl;
+        std::cout << "frame count : " << cap.get(cv::CAP_PROP_FRAME_COUNT) << std::endl;
 		std::cout << "fps         : " << cap.get(cv::CAP_PROP_FPS) << std::endl;
 
 		// delta_time = 1 / fps;

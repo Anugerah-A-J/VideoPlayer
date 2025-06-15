@@ -3,10 +3,6 @@
 
 #include <QWidget>
 #include <QMediaPlayer>
-// #include <QGraphicsVideoItem>
-// #include <QGraphicsScene>
-// #include <QGraphicsView>
-// #include <QVideoWidget>
 #include <QVideoSink>
 #include <QAudioOutput>
 #include <QPushButton>
@@ -58,15 +54,12 @@ private:
     bool itsALeftClick;
     bool alreadyLeftClickedOnce;
     std::chrono::time_point<std::chrono::steady_clock> startShowChildren;
-    // void showEvent(QShowEvent*) override;
+    void showEvent(QShowEvent*) override;
 
     ControlPanel controlPanel;
     QMediaPlayer mediaPlayer;
     QVideoSink videoSink;
     QPushButton openFileButton;
-    // QGraphicsScene scene;
-    // QGraphicsVideoItem videoItem;
-    // QGraphicsView graphicsView;
     QAudioOutput audioOutput;
     QStackedLayout layout;
     QTimer timer;
@@ -77,9 +70,12 @@ private:
     QRect frameRect;
     QPointF oldMousePosition;
     int updateFrameTicksCount;
+    float zoomFactor; // 1 to 2
+    int frame_width;
+    int frame_height;
 public:
-    static constexpr int width = 640;
-    static constexpr int height = 480;
+    static constexpr int initialWidth = 640;
+    static constexpr int initialHeight = 480;
     static constexpr int timeEventInterval          = 100; // in millisecond
     static constexpr int skipDuration               = 7000; // in millisecond
     static constexpr float showControlPanelDuration = 3; // in second
