@@ -3,7 +3,6 @@
 #include <QStandardPaths>
 #include <QVideoFrame>
 #include <QPainter>
-#include <iostream>
 
 VideoPlayer::VideoPlayer(QWidget *parent):
     QWidget{parent},
@@ -330,8 +329,10 @@ void VideoPlayer::keyReleaseEvent(QKeyEvent* e)
 
 void VideoPlayer::fitAndCenterFrameRect()
 {
-    int window_width = geometry().width();
-    int window_height = geometry().height();
+    int window_width = width();
+    int window_height = height();
+    fitWindowRect.setWidth(window_width);
+    fitWindowRect.setHeight(window_height);
 
     if (window_width * frame_height > frame_width * window_height) // window too wide
     {
@@ -354,6 +355,10 @@ void VideoPlayer::fitAndCenterFrameRect()
         frameRect.setWidth(window_width);
         frameRect.setHeight(window_height);
     }
+
+    fitFrameRect = frameRect;
+    qDebug() << "fitFrameRect : " << fitFrameRect;
+    qDebug() << "fitWindowRect: " << fitWindowRect;
 }
 
 void VideoPlayer::paintEvent(QPaintEvent*)
@@ -365,26 +370,23 @@ void VideoPlayer::paintEvent(QPaintEvent*)
 
     // if (zoomFactor > 1)
     {
-        painter.setPen(QColor(127, 127, 127));
+        const float factor = static_cast<float>(thumbnailHeight) / fitWindowRect.height();
+        constexpr int margin = 10;
 
-        float factor = static_cast<float>(thumbnailHeight) / frameRect.height();
-        QPointF anchor = mapFromGlobal(geometry().topLeft());
         painter.setPen(QColor(85, 85, 85));
         painter.drawRect(
-            10 + anchor.x(),
-            10 + anchor.y(),
-            frameRect.width() * factor,
-            thumbnailHeight
+            fitFrameRect.x() * factor + margin,
+            fitFrameRect.y() * factor + margin,
+            fitFrameRect.width() * factor,
+            fitFrameRect.height() * factor
         );
 
-        factor = static_cast<float>(thumbnailHeight) / geometry().height();
-        anchor += frameRect.topLeft();
         painter.setPen(QColor(170, 170, 170));
         painter.drawRect(
-            anchor.x(),
-            anchor.y(),
-            geometry().width() * factor,
-            geometry().height() * factor
+            -frameRect.x() * factor / zoomFactor + fitFrameRect.x() * factor + margin,
+            -frameRect.y() * factor / zoomFactor + fitFrameRect.y() * factor + margin,
+            width() * factor / zoomFactor,
+            height() * factor / zoomFactor
         );
     }
 }
@@ -396,11 +398,9 @@ void VideoPlayer::leaveEvent(QEvent*)
 
 void VideoPlayer::showEvent(QShowEvent*)
 {
-    // qDebug() << "geometry before: " << geometry();
-    qDebug() << "frame before   : " << frameRect;
+    // qDebug() << "frame before   : " << frameRect;
     fitAndCenterFrameRect();
-    // qDebug() << "geometry after : " << geometry();
-    qDebug() << "frame after    : " << frameRect;
+    // qDebug() << "frame after    : " << frameRect;
 }
 
 void VideoPlayer::mouseMoveEvent(QMouseEvent* e)
@@ -420,14 +420,14 @@ void VideoPlayer::mouseMoveEvent(QMouseEvent* e)
         if (dx > 0 && frameRect.left() > 0) // move right
             frameRect.translate(-frameRect.left(), 0);
 
-        else if (dx < 0 && frameRect.right() < geometry().right()) // move left
-            frameRect.translate(geometry().right() - frameRect.right(), 0);
+        else if (dx < 0 && frameRect.right() < width()) // move left
+            frameRect.translate(width() - frameRect.right(), 0);
 
         if (dy > 0 && frameRect.top() > 0) // move bottom
             frameRect.translate(0, -frameRect.top());
 
-        else if (dy < 0 && frameRect.bottom() < geometry().bottom()) // move top
-            frameRect.translate(0, geometry().bottom() - frameRect.bottom());
+        else if (dy < 0 && frameRect.bottom() < height()) // move top
+            frameRect.translate(0, height() - frameRect.bottom());
 
         oldMousePosition = e->position();
     }
@@ -519,6 +519,7 @@ void VideoPlayer::mouseReleaseEvent(QMouseEvent* e)
     {
         mouseRightPressed = false;
         setCursor(Qt::ArrowCursor);
+        qDebug() << "mouseRightReleased";
     }
 }
 

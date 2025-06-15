@@ -68,6 +68,8 @@ private:
     bool keySpacePressIsAutoRepeat;
     FrameIndexer frameIndexer;
     QRect frameRect;
+    QRect fitWindowRect;
+    QRect fitFrameRect;
     QPointF oldMousePosition;
     int updateFrameTicksCount;
     float zoomFactor; // 1 to 2
