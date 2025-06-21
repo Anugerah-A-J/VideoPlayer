@@ -13,11 +13,14 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     openFileButton{"Open"},
     updateFrameTicksCount{0},
     zoomFactor{1},
-    icon{"icon.svg"}
+    icon{"vp.svg"},
+    alwaysOnTop{false}
 {
     openFileButton.setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 
     connect(&controlPanel.playButton, &QAbstractButton::clicked, this, &VideoPlayer::play);
+    connect(&controlPanel.loopButton, &QAbstractButton::clicked, this, &VideoPlayer::toggleLoop);
+    connect(&controlPanel.alwaysOnTopButton, &QAbstractButton::clicked, this, &VideoPlayer::toggleAlwaysOnTop);
     connect(&controlPanel.positionSlider, &QAbstractSlider::valueChanged, this, &VideoPlayer::setPosition);
     connect(&controlPanel.fullscreenButton, &QAbstractButton::clicked, this, &VideoPlayer::toggleFullscreen);
     connect(&openFileButton, &QAbstractButton::clicked, this, &VideoPlayer::openFile);
@@ -554,5 +557,38 @@ void VideoPlayer::toggleFullscreen()
         setWindowState(Qt::WindowFullScreen);
         controlPanel.fullscreenButton.setIcon(controlPanel.exitFullscreenIcon);
         break;
+    }
+}
+
+void VideoPlayer::toggleLoop()
+{
+    switch (mediaPlayer.loops())
+    {
+    case QMediaPlayer::Once:
+        mediaPlayer.setLoops(QMediaPlayer::Infinite);
+        controlPanel.loopButton.setIcon(controlPanel.loopAcvtiveIcon);
+        break;
+    case QMediaPlayer::Infinite:
+        mediaPlayer.setLoops(QMediaPlayer::Once);
+        controlPanel.loopButton.setIcon(controlPanel.loopInactiveIcon);
+        break;
+    }
+}
+
+void VideoPlayer::toggleAlwaysOnTop()
+{
+    if (alwaysOnTop)
+    {
+        alwaysOnTop = false;
+        controlPanel.alwaysOnTopButton.setIcon(controlPanel.alwaysOnTopInactiveIcon);
+        setWindowFlags(windowFlags() &= ~Qt::WindowStaysOnTopHint);
+        show();
+    }
+    else
+    {
+        alwaysOnTop = true;
+        controlPanel.alwaysOnTopButton.setIcon(controlPanel.alwaysOnTopActiveIcon);
+        setWindowFlags(windowFlags() |= Qt::WindowStaysOnTopHint);
+        show();
     }
 }

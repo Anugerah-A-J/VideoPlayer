@@ -30,6 +30,7 @@ qt_add_executable(${PROJECT_NAME}
     position_slider.cpp position_slider.h
     frame_indexer.cpp frame_indexer.h
     thumbnail.h thumbnail.cpp
+    vp.rc # for icon
 )
 
 # this close the terminal when app is running

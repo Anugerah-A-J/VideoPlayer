@@ -25,14 +25,26 @@ private:
     // std::chrono::time_point<std::chrono::steady_clock> startShowChildren;
 
     PositionSlider positionSlider;
+
     QPushButton playButton;
+    QPushButton loopButton;
     QLabel timeOverDurationLabel;
+    QPushButton alwaysOnTopButton;
     QPushButton fullscreenButton;
+
     QGridLayout layout;
+
     QIcon playIcon;
     QIcon pauseIcon;
+
     QIcon fullscreenIcon;
     QIcon exitFullscreenIcon;
+
+    QIcon loopAcvtiveIcon;
+    QIcon loopInactiveIcon;
+
+    QIcon alwaysOnTopActiveIcon;
+    QIcon alwaysOnTopInactiveIcon;
 };
 
 #endif

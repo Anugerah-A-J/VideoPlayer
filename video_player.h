@@ -37,6 +37,8 @@ private:
     void printError(QMediaPlayer::Error error, const QString &errorString);
     void fitAndCenterFrameRect();
     void zoomFrameRect(const QPointF&, float oldZoomFactor);
+    void toggleLoop();
+    void toggleAlwaysOnTop();
 
     void resizeEvent(QResizeEvent*) override;
     void keyPressEvent(QKeyEvent*) override;
@@ -76,6 +78,7 @@ private:
     int frame_width;
     int frame_height;
     QIcon icon;
+    bool alwaysOnTop;
 public:
     static constexpr int initialWidth = 640;
     static constexpr int initialHeight = 480;

@@ -2,13 +2,13 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="25mm"
-   height="24.999998mm"
-   viewBox="0 0 25 24.999998"
+   width="39.999626mm"
+   height="40.000141mm"
+   viewBox="0 0 39.999626 40.000141"
    version="1.1"
    id="svg1"
    inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
-   sodipodi:docname="enter-fullscreen.svg"
+   sodipodi:docname="loop-active.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -24,9 +24,9 @@
      inkscape:deskcolor="#000000"
      inkscape:document-units="mm"
      showgrid="true"
-     inkscape:zoom="1.9578168"
-     inkscape:cx="79.425205"
-     inkscape:cy="-30.901768"
+     inkscape:zoom="4"
+     inkscape:cx="103.25"
+     inkscape:cy="88.875"
      inkscape:window-width="1920"
      inkscape:window-height="991"
      inkscape:window-x="-9"
@@ -36,8 +36,8 @@
     <inkscape:grid
        id="grid1"
        units="mm"
-       originx="-70.000001"
-       originy="-69.999998"
+       originx="-40.000142"
+       originy="-245.00002"
        spacingx="0.99999998"
        spacingy="1"
        empcolor="#0099e5"
@@ -51,27 +51,37 @@
        visible="true" />
   </sodipodi:namedview>
   <defs
-     id="defs1" />
+     id="defs1">
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect2"
+       is_visible="true"
+       lpeversion="1"
+       nodesatellites_param="F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1"
+       radius="0"
+       unit="mm"
+       method="auto"
+       mode="F"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="false"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+  </defs>
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-70.000002,-69.999998)">
+     transform="translate(-40.000142,-245.00003)">
     <path
-       style="fill:#bfbfbf;fill-opacity:1;stroke-width:0"
-       d="m 70.000002,69.999998 v 9.999999 h 5.000001 v -4.999999 h 5 v -5 z"
-       id="path8" />
+       id="path42-5"
+       style="fill:#cccccc;fill-opacity:1;stroke:none;stroke-width:0.1;stroke-dasharray:none;stroke-opacity:1"
+       d="m 69.999862,245.00003 v 5.00021 h -29.99972 v 9.99991 h 29.99972 v 4.9997 l 9.999906,-9.99991 z" />
     <path
-       style="fill:#bfbfbf;fill-opacity:1;stroke-width:0"
-       d="m 70.000004,84.999998 v 9.999999 h 10.000001 v -5 h -5 v -4.999999 z"
-       id="path9" />
-    <path
-       style="fill:#bfbfbf;fill-opacity:1;stroke-width:0"
-       d="m 85.000003,69.999998 v 5 h 5.000001 v 4.999999 h 4.999998 v -9.999999 z"
-       id="path10" />
-    <path
-       style="fill:#bfbfbf;fill-opacity:1;stroke-width:0"
-       d="m 85.000003,89.999997 v 5 h 9.999999 v -9.999999 h -4.999998 v 4.999999 z"
-       id="path11" />
+       id="path42-9"
+       style="fill:#cccccc;fill-opacity:1;stroke:none;stroke-width:0.1;stroke-dasharray:none;stroke-opacity:1"
+       d="m 50.000049,264.99985 -9.999907,9.9999 9.999907,10.00042 v -5.00021 h 29.999719 v -9.9999 H 50.000049 Z" />
   </g>
 </svg>
