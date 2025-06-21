@@ -36,7 +36,7 @@ private:
     void toggleFullscreen();
     void printError(QMediaPlayer::Error error, const QString &errorString);
     void fitAndCenterFrameRect();
-    void zoomFrameRect(const QPointF&, float zoomFactor);
+    void zoomFrameRect(const QPointF&, float oldZoomFactor);
 
     void resizeEvent(QResizeEvent*) override;
     void keyPressEvent(QKeyEvent*) override;
@@ -75,6 +75,7 @@ private:
     float zoomFactor; // 1 to 2
     int frame_width;
     int frame_height;
+    QIcon icon;
 public:
     static constexpr int initialWidth = 640;
     static constexpr int initialHeight = 480;

@@ -2,13 +2,13 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="14.999999mm"
-   height="15mm"
-   viewBox="0 0 14.999999 15"
+   width="25mm"
+   height="24.999998mm"
+   viewBox="0 0 25 24.999998"
    version="1.1"
    id="svg1"
    inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
-   sodipodi:docname="pause.svg"
+   sodipodi:docname="enter-fullscreen.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -24,9 +24,9 @@
      inkscape:deskcolor="#505050"
      inkscape:document-units="mm"
      showgrid="true"
-     inkscape:zoom="7.8312671"
-     inkscape:cx="33.583326"
-     inkscape:cy="31.731774"
+     inkscape:zoom="1.9578168"
+     inkscape:cx="79.680592"
+     inkscape:cy="-30.390995"
      inkscape:window-width="1920"
      inkscape:window-height="991"
      inkscape:window-x="-9"
@@ -36,9 +36,9 @@
     <inkscape:grid
        id="grid1"
        units="mm"
-       originx="0"
-       originy="0"
-       spacingx="1"
+       originx="-70.000001"
+       originy="-69.999998"
+       spacingx="0.99999998"
        spacingy="1"
        empcolor="#0099e5"
        empopacity="0.30196078"
@@ -56,14 +56,22 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-87.577081,-100.27708)">
+     transform="translate(-70.000002,-69.999998)">
     <path
        style="fill:#bfbfbf;fill-opacity:1;stroke-width:0"
-       d="m 87.577081,100.27708 v 15 h 5.000001 v -15 z"
-       id="path16" />
+       d="m 70.000002,69.999998 v 9.999999 h 5.000001 v -4.999999 h 5 v -5 z"
+       id="path8" />
     <path
        style="fill:#bfbfbf;fill-opacity:1;stroke-width:0"
-       d="m 97.57708,100.27708 v 15 h 5 v -15 z"
-       id="path17" />
+       d="m 70.000004,84.999998 v 9.999999 h 10.000001 v -5 h -5 v -4.999999 z"
+       id="path9" />
+    <path
+       style="fill:#bfbfbf;fill-opacity:1;stroke-width:0"
+       d="m 85.000003,69.999998 v 5 h 5.000001 v 4.999999 h 4.999998 v -9.999999 z"
+       id="path10" />
+    <path
+       style="fill:#bfbfbf;fill-opacity:1;stroke-width:0"
+       d="m 85.000003,89.999997 v 5 h 9.999999 v -9.999999 h -4.999998 v 4.999999 z"
+       id="path11" />
   </g>
 </svg>

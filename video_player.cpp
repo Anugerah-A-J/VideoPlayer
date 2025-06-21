@@ -12,7 +12,8 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     alreadyLeftClickedOnce{false},
     openFileButton{"Open"},
     updateFrameTicksCount{0},
-    zoomFactor{1}
+    zoomFactor{1},
+    icon{"icon.svg"}
 {
     openFileButton.setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 
@@ -26,7 +27,7 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     layout.setStackingMode(QStackedLayout::StackAll);
     setLayout(&layout);
 
-    // mediaPlayer.setAudioOutput(&audioOutput);
+    mediaPlayer.setAudioOutput(&audioOutput);
     mediaPlayer.setVideoSink(&videoSink);
     connect(&mediaPlayer, &QMediaPlayer::errorOccurred, this, &VideoPlayer::printError);
     connect(&mediaPlayer, &QMediaPlayer::playbackStateChanged, this, &VideoPlayer::mediaStateChanged);
@@ -42,6 +43,7 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     setMouseTracking(true);
     // connect(&controlPanel.positionSlider, &PositionSlider::timeTextChanged, this, &VideoPlayer::updateThumbnail);
     // graphicsView.setStyleSheet("border: 5px solid red");
+    setWindowIcon(icon);
 }
 
 void VideoPlayer::printError(QMediaPlayer::Error error, const QString &errorString)
@@ -279,6 +281,7 @@ void VideoPlayer::timeEvent()
 void VideoPlayer::resizeEvent(QResizeEvent*)
 {
     fitAndCenterFrameRect();
+    qDebug() << "resizeEvent!";
 }
 
 void VideoPlayer::keyPressEvent(QKeyEvent* e)
@@ -336,27 +339,28 @@ void VideoPlayer::fitAndCenterFrameRect()
 
     if (window_width * frame_height > frame_width * window_height) // window too wide
     {
-        frameRect.setY(0);
-        frameRect.setHeight(window_height);
-        frameRect.setWidth(frameRect.height() * frame_width / frame_height);
-        frameRect.setX((window_width - frameRect.width()) / 2);
+        fitFrameRect.setY(0);
+        fitFrameRect.setHeight(window_height);
+        fitFrameRect.setWidth(fitFrameRect.height() * frame_width / frame_height);
+        fitFrameRect.setX((window_width - fitFrameRect.width()) / 2);
     }
     else if (window_width * frame_height < frame_width * window_height)
     {
-        frameRect.setX(0);
-        frameRect.setWidth(window_width);
-        frameRect.setHeight(frameRect.width() * frame_height / frame_width);
-        frameRect.setY((window_height - frameRect.height()) / 2);
+        fitFrameRect.setX(0);
+        fitFrameRect.setWidth(window_width);
+        fitFrameRect.setHeight(fitFrameRect.width() * frame_height / frame_width);
+        fitFrameRect.setY((window_height - fitFrameRect.height()) / 2);
     }
     else
     {
-        frameRect.setX(0);
-        frameRect.setY(0);
-        frameRect.setWidth(window_width);
-        frameRect.setHeight(window_height);
+        fitFrameRect.setX(0);
+        fitFrameRect.setY(0);
+        fitFrameRect.setWidth(window_width);
+        fitFrameRect.setHeight(window_height);
     }
 
-    fitFrameRect = frameRect;
+    frameRect = fitFrameRect;
+    zoomFactor = 1;
     qDebug() << "fitFrameRect : " << fitFrameRect;
     qDebug() << "fitWindowRect: " << fitWindowRect;
 }
@@ -373,7 +377,8 @@ void VideoPlayer::paintEvent(QPaintEvent*)
         const float factor = static_cast<float>(thumbnailHeight) / fitWindowRect.height();
         constexpr int margin = 10;
 
-        painter.setPen(QColor(85, 85, 85));
+        // painter.setPen(QColor(85, 85, 85));
+        painter.setPen(QColor(255, 0, 127));
         painter.drawRect(
             fitFrameRect.x() * factor + margin,
             fitFrameRect.y() * factor + margin,
@@ -381,7 +386,8 @@ void VideoPlayer::paintEvent(QPaintEvent*)
             fitFrameRect.height() * factor
         );
 
-        painter.setPen(QColor(170, 170, 170));
+        // painter.setPen(QColor(170, 170, 170));
+        painter.setPen(QColor(255, 0, 255));
         painter.drawRect(
             -frameRect.x() * factor / zoomFactor + fitFrameRect.x() * factor + margin,
             -frameRect.y() * factor / zoomFactor + fitFrameRect.y() * factor + margin,
@@ -431,6 +437,8 @@ void VideoPlayer::mouseMoveEvent(QMouseEvent* e)
 
         oldMousePosition = e->position();
     }
+    if (mediaPlayer.playbackState() == QMediaPlayer::PausedState)
+        update();
 }
 
 void VideoPlayer::wheelEvent(QWheelEvent* e)
@@ -441,32 +449,37 @@ void VideoPlayer::wheelEvent(QWheelEvent* e)
     {
         QPoint numSteps = numDegrees / 15; // (0, 1) or (0, -1)
         numSteps *= 1;
+        const float oldZoomFactor = zoomFactor;
 
         if (numSteps.y() < 0)
             zoomFactor -= 0.1;
         else if (numSteps.y() > 0)
             zoomFactor += 0.1;
 
-        zoomFrameRect(e->position(), zoomFactor);
+        zoomFrameRect(e->position(), oldZoomFactor);
 
-        if (zoomFactor < 1)
+        if (zoomFactor < 1) // bounded so zoom scale >= 100%
         {
-            zoomFactor = 1;
+            // zoomFactor = 1;
             fitAndCenterFrameRect();
         }
     }
+    qDebug() << zoomFactor;
 }
 
-void VideoPlayer::zoomFrameRect(const QPointF& anchor, float zoomFactor) // bounded so zoom scale >= 100%
+void VideoPlayer::zoomFrameRect(const QPointF& anchor, float oldZoomFactor)
 {
     int dx = anchor.x() - frameRect.x();
     int dy = anchor.y() - frameRect.y();
 
-    frameRect.setX(anchor.x() - dx * zoomFactor);
-    frameRect.setY(anchor.y() - dy * zoomFactor);
+    frameRect.setWidth(fitFrameRect.width() * zoomFactor);
+    frameRect.setHeight(fitFrameRect.height() * zoomFactor);
 
-    frameRect.setWidth(frameRect.width() * zoomFactor);
-    frameRect.setHeight(frameRect.height() * zoomFactor);
+    frameRect.setX(anchor.x() - dx * zoomFactor / oldZoomFactor);
+    frameRect.setY(anchor.y() - dy * zoomFactor / oldZoomFactor);
+
+    if (mediaPlayer.playbackState() == QMediaPlayer::PausedState)
+        update();
 }
 
 void VideoPlayer::mousePressEvent(QMouseEvent* e)
@@ -520,6 +533,11 @@ void VideoPlayer::mouseReleaseEvent(QMouseEvent* e)
         mouseRightPressed = false;
         setCursor(Qt::ArrowCursor);
         qDebug() << "mouseRightReleased";
+    }
+    // --- Fix: Always check if right button is still pressed ---
+    if (!(e->buttons() & Qt::RightButton))
+    {
+        mouseRightPressed = false;
     }
 }
 
