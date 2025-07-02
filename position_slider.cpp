@@ -1,5 +1,6 @@
 #include "position_slider.h"
 #include "video_player.h"
+#include <QPainter>
 
 PositionSlider::PositionSlider(Qt::Orientation orientation, QWidget *parent):
     QSlider{orientation, parent},
@@ -24,7 +25,6 @@ void PositionSlider::mouseMoveEvent(QMouseEvent* e)
             static_cast<int>(e->position().x()),
             -height() // on top of slider
         };
-        thumbnail.timeLabel.setText(newTimeText);
         timeText = newTimeText;
         cursorGlobalPositionOnTopOfSlider = mapToGlobal(position);
         timeTextChanged = true;
@@ -48,5 +48,25 @@ void PositionSlider::enterEvent(QEnterEvent*)
 void PositionSlider::leaveEvent(QEvent*)
 {
     mouseIsInsideMe = false;
-    thumbnail.hide();
+    showThumbnail = false;
+}
+
+void PositionSlider::updateThumbnailPosition(const QPoint& windowGlobalOrigin)
+{
+    thumbnailRenderRect = thumbnail.rect();
+    thumbnailRenderRect.moveTopLeft(cursorGlobalPositionOnTopOfSlider - windowGlobalOrigin);
+    thumbnailRenderRect.translate(
+        -thumbnail.width() / 2,
+        -thumbnail.height() //- height()
+    );
+    timeTextRect.setTopLeft(thumbnailRenderRect.bottomLeft());
+    timeTextRect.setHeight(height());
+    timeTextRect.setWidth(thumbnailRenderRect.width());
+}
+
+void PositionSlider::drawThumbnail(QPainter& painter)
+{
+    painter.drawPixmap(thumbnailRenderRect, thumbnail);
+    painter.setPen(Qt::white);
+    painter.drawText(timeTextRect, timeText, {Qt::AlignCenter});
 }

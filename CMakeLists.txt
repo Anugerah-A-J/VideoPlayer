@@ -29,7 +29,6 @@ qt_add_executable(${PROJECT_NAME}
     control_panel.cpp control_panel.h
     position_slider.cpp position_slider.h
     frame_indexer.cpp frame_indexer.h
-    thumbnail.h thumbnail.cpp
     vp.rc # for icon
 )
 

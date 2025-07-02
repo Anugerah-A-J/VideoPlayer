@@ -5,8 +5,6 @@
 #include <QLabel>
 #include <QMouseEvent>
 
-#include "thumbnail.h"
-
 class PositionSlider : public QSlider
 {
     // Q_OBJECT
@@ -21,12 +19,17 @@ private:
     void mouseReleaseEvent(QMouseEvent*) override;
     void enterEvent(QEnterEvent*) override;
     void leaveEvent(QEvent*) override;
+    void updateThumbnailPosition(const QPoint& windowGlobalOrigin);
+    void drawThumbnail(QPainter&);
     bool mouseIsInsideMe;
-    Thumbnail thumbnail;
+    QPixmap thumbnail;
     qint64 ms;
     QString timeText;
     QPoint cursorGlobalPositionOnTopOfSlider;
     bool timeTextChanged;
+    bool showThumbnail;
+    QRect thumbnailRenderRect;
+    QRect timeTextRect;
 };
 
 #endif

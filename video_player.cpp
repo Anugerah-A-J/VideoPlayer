@@ -188,30 +188,20 @@ void VideoPlayer::updateThumbnail()
     // std::chrono::duration<double> elapsed_seconds{finish - start};
     // std::cout << "ffms get frame: " << elapsed_seconds.count() << '\n';
 
-    if (controlPanel.positionSlider.thumbnail.pictureLabel.height() < thumbnailHeight)
+    if (controlPanel.positionSlider.thumbnail.height() < thumbnailHeight)
     {
-        controlPanel.positionSlider.thumbnail.pictureLabel.setPixmap(
-            frameIndexer.getFrameByTime(
-                controlPanel.positionSlider.ms
-            )
+        controlPanel.positionSlider.thumbnail = frameIndexer.getFrameByTime(
+            controlPanel.positionSlider.ms
         );
-        controlPanel.positionSlider.thumbnail.move(controlPanel.positionSlider.cursorGlobalPositionOnTopOfSlider + QPoint(
-            -controlPanel.positionSlider.thumbnail.width() / 2,
-            -controlPanel.positionSlider.thumbnail.height()
-        ));
-        controlPanel.positionSlider.thumbnail.show();
+        controlPanel.positionSlider.updateThumbnailPosition(geometry().topLeft());
+        controlPanel.positionSlider.showThumbnail = true;
     }
     else
     {
-        controlPanel.positionSlider.thumbnail.move(controlPanel.positionSlider.cursorGlobalPositionOnTopOfSlider + QPoint(
-            -controlPanel.positionSlider.thumbnail.width() / 2,
-            -controlPanel.positionSlider.thumbnail.height()
-        ));
-        controlPanel.positionSlider.thumbnail.show();
-        controlPanel.positionSlider.thumbnail.pictureLabel.setPixmap(
-            frameIndexer.getFrameByTime(
-                controlPanel.positionSlider.ms
-            )
+        controlPanel.positionSlider.updateThumbnailPosition(geometry().topLeft());
+        controlPanel.positionSlider.showThumbnail = true;
+        controlPanel.positionSlider.thumbnail = frameIndexer.getFrameByTime(
+            controlPanel.positionSlider.ms
         );
     }
 }
@@ -397,6 +387,11 @@ void VideoPlayer::paintEvent(QPaintEvent*)
             width() * factor / zoomFactor,
             height() * factor / zoomFactor
         );
+
+    }
+    if (controlPanel.positionSlider.showThumbnail)
+    {
+        controlPanel.positionSlider.drawThumbnail(painter);
     }
 }
 
