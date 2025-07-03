@@ -7,14 +7,14 @@ ControlPanel::ControlPanel(QWidget *parent):
     // itsALeftClick{false},
     // alreadyLeftClickedOnce{false},
     positionSlider{Qt::Horizontal},
-    playIcon{"icon/play.svg"},
-    pauseIcon{"icon/pause.svg"},
-    fullscreenIcon{"icon/enter-fullscreen.svg"},
-    exitFullscreenIcon{"icon/exit-fullscreen.svg"},
-    loopAcvtiveIcon{"icon/loop-active.svg"},
-    loopInactiveIcon{"icon/loop-inactive.svg"},
-    alwaysOnTopActiveIcon{"icon/always-on-top-active.svg"},
-    alwaysOnTopInactiveIcon{"icon/always-on-top-inactive.svg"}
+    playIcon{":/icon/play.svg"},
+    pauseIcon{":/icon/pause.svg"},
+    fullscreenIcon{":/icon/enter-fullscreen.svg"},
+    exitFullscreenIcon{":/icon/exit-fullscreen.svg"},
+    loopAcvtiveIcon{":/icon/loop-active.svg"},
+    loopInactiveIcon{":/icon/loop-inactive.svg"},
+    alwaysOnTopActiveIcon{":/icon/always-on-top-active.svg"},
+    alwaysOnTopInactiveIcon{":/icon/always-on-top-inactive.svg"}
 {
     playButton.setEnabled(false);
     playButton.setStyleSheet("background: transparent; border: none;");

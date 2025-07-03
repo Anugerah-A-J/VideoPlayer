@@ -51,7 +51,7 @@ void PositionSlider::leaveEvent(QEvent*)
     showThumbnail = false;
 }
 
-void PositionSlider::updateThumbnailPosition(const QPoint& windowGlobalOrigin)
+void PositionSlider::updateThumbnailPosition(const QPoint& windowGlobalOrigin, int windowWidth)
 {
     thumbnailRenderRect = thumbnail.rect();
     thumbnailRenderRect.moveTopLeft(cursorGlobalPositionOnTopOfSlider - windowGlobalOrigin);
@@ -59,6 +59,25 @@ void PositionSlider::updateThumbnailPosition(const QPoint& windowGlobalOrigin)
         -thumbnail.width() / 2,
         -thumbnail.height() //- height()
     );
+    const int margin = height() / 2;
+    int thumbnailLocalX = thumbnailRenderRect.x();
+    qDebug() << "thumbnailLocalX " << thumbnailLocalX;
+    if (thumbnailLocalX < margin)
+    {
+        thumbnailRenderRect.translate(
+            margin - thumbnailLocalX,
+            0
+        );
+        qDebug() << "too left " << thumbnailLocalX;
+    }
+    else if (thumbnailLocalX + thumbnail.width() > windowWidth - margin)
+    {
+        thumbnailRenderRect.translate(
+            windowWidth - margin - thumbnailLocalX - thumbnail.width(),
+            0
+        );
+        qDebug() << "too right " << thumbnailLocalX + thumbnail.width() - windowWidth + margin;
+    }
     timeTextRect.setTopLeft(thumbnailRenderRect.bottomLeft());
     timeTextRect.setHeight(height());
     timeTextRect.setWidth(thumbnailRenderRect.width());

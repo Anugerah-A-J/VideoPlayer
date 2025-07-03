@@ -1,3 +1,7 @@
+/*
+cmake -G Ninja -B build --fresh
+*/
+
 #include "video_player.h"
 
 #include <QApplication>

@@ -1,4 +1,3 @@
-# cmake -G Ninja -B build
 # config:
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 set(CMAKE_PREFIX_PATH
@@ -30,6 +29,18 @@ qt_add_executable(${PROJECT_NAME}
     position_slider.cpp position_slider.h
     frame_indexer.cpp frame_indexer.h
     vp.rc # for icon
+)
+qt_add_resources(${PROJECT_NAME} "icons"
+    PREFIX "/"
+    FILES
+        icon/play.svg
+        icon/pause.svg
+        icon/enter-fullscreen.svg
+        icon/exit-fullscreen.svg
+        icon/loop-active.svg
+        icon/loop-inactive.svg
+        icon/always-on-top-active.svg
+        icon/always-on-top-inactive.svg
 )
 
 # this close the terminal when app is running

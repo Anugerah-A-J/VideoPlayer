@@ -19,7 +19,7 @@ private:
     void mouseReleaseEvent(QMouseEvent*) override;
     void enterEvent(QEnterEvent*) override;
     void leaveEvent(QEvent*) override;
-    void updateThumbnailPosition(const QPoint& windowGlobalOrigin);
+    void updateThumbnailPosition(const QPoint& windowGlobalOrigin, int windowWidth);
     void drawThumbnail(QPainter&);
     bool mouseIsInsideMe;
     QPixmap thumbnail;

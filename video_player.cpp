@@ -193,12 +193,12 @@ void VideoPlayer::updateThumbnail()
         controlPanel.positionSlider.thumbnail = frameIndexer.getFrameByTime(
             controlPanel.positionSlider.ms
         );
-        controlPanel.positionSlider.updateThumbnailPosition(geometry().topLeft());
+        controlPanel.positionSlider.updateThumbnailPosition(geometry().topLeft(), width());
         controlPanel.positionSlider.showThumbnail = true;
     }
     else
     {
-        controlPanel.positionSlider.updateThumbnailPosition(geometry().topLeft());
+        controlPanel.positionSlider.updateThumbnailPosition(geometry().topLeft(), width());
         controlPanel.positionSlider.showThumbnail = true;
         controlPanel.positionSlider.thumbnail = frameIndexer.getFrameByTime(
             controlPanel.positionSlider.ms
