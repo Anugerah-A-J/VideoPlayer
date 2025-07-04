@@ -3,6 +3,15 @@
 #include <QStandardPaths>
 #include <QVideoFrame>
 #include <QPainter>
+#if defined(Q_OS_WIN)
+    #include <windows.h>
+    #ifndef GET_X_LPARAM
+        #define GET_X_LPARAM(lp) ((int)(short)LOWORD(lp))
+    #endif
+    #ifndef GET_Y_LPARAM
+        #define GET_Y_LPARAM(lp) ((int)(short)HIWORD(lp))
+    #endif
+#endif
 
 VideoPlayer::VideoPlayer(QWidget *parent):
     QWidget{parent},
@@ -13,7 +22,6 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     openFileButton{"Open"},
     updateFrameTicksCount{0},
     zoomFactor{1},
-    icon{"vp.svg"},
     alwaysOnTop{false}
 {
     openFileButton.setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -45,8 +53,7 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     resize(initialWidth, initialHeight);
     setMouseTracking(true);
     // connect(&controlPanel.positionSlider, &PositionSlider::timeTextChanged, this, &VideoPlayer::updateThumbnail);
-    // graphicsView.setStyleSheet("border: 5px solid red");
-    setWindowIcon(icon);
+    // controlPanel.setStyleSheet("border: 1px solid red");
 }
 
 void VideoPlayer::printError(QMediaPlayer::Error error, const QString &errorString)
@@ -365,13 +372,29 @@ void VideoPlayer::paintEvent(QPaintEvent*)
     QVideoFrame::PaintOptions paintOptions;
     videoSink.videoFrame().paint(&painter, frameRect, paintOptions);
 
-    // if (zoomFactor > 1)
+    if (zoomFactor > 1)
     {
         const float factor = static_cast<float>(thumbnailHeight) / fitWindowRect.height();
         constexpr int margin = 10;
 
+        int fitFrameRectYStop = fitFrameRect.y() * factor + margin
+            + fitFrameRect.height() * factor;
+        int frameRectYStop = -frameRect.y() * factor / zoomFactor + fitFrameRect.y() * factor + margin
+            + height() * factor / zoomFactor;
+        int yStop = max(fitFrameRectYStop, frameRectYStop) + margin;
+
+        QLinearGradient gradient {0, 0, 0, static_cast<qreal>(yStop)};
+        gradient.setColorAt(0, {0, 0, 0, 255});
+        gradient.setColorAt(1, {0, 0, 0, 0});
+
+        painter.setPen({0, 0, 0, 0});
+        painter.setBrush(gradient);
+        painter.drawRect(0, 0, width(), height() / 2);
+
+        // static
         // painter.setPen(QColor(85, 85, 85));
-        painter.setPen(QColor(255, 0, 127));
+        painter.setPen({255, 255, 255, 255 / 3});
+        painter.setBrush(Qt::NoBrush);
         painter.drawRect(
             fitFrameRect.x() * factor + margin,
             fitFrameRect.y() * factor + margin,
@@ -379,8 +402,9 @@ void VideoPlayer::paintEvent(QPaintEvent*)
             fitFrameRect.height() * factor
         );
 
+        // dynamic, changed when zoom scale is changed
         // painter.setPen(QColor(170, 170, 170));
-        painter.setPen(QColor(255, 0, 255));
+        painter.setPen({255, 255, 255, 255 / 2});
         painter.drawRect(
             -frameRect.x() * factor / zoomFactor + fitFrameRect.x() * factor + margin,
             -frameRect.y() * factor / zoomFactor + fitFrameRect.y() * factor + margin,
@@ -388,6 +412,22 @@ void VideoPlayer::paintEvent(QPaintEvent*)
             height() * factor / zoomFactor
         );
 
+    }
+    if (controlPanel.isVisible())
+    {
+        QLinearGradient gradient
+        {
+            0,
+            static_cast<qreal>(height()),
+            0,
+            static_cast<qreal>(height() - controlPanel.positionSlider.height() * 2 - thumbnailHeight)
+        };
+        gradient.setColorAt(0, {0, 0, 0, 255});
+        gradient.setColorAt(1, {0, 0, 0, 0});
+
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(gradient);
+        painter.drawRect(0, height() / 2, width(), height() / 2);
     }
     if (controlPanel.positionSlider.showThumbnail)
     {
@@ -530,13 +570,40 @@ void VideoPlayer::mouseReleaseEvent(QMouseEvent* e)
     {
         mouseRightPressed = false;
         setCursor(Qt::ArrowCursor);
-        qDebug() << "mouseRightReleased";
     }
-    // --- Fix: Always check if right button is still pressed ---
-    if (!(e->buttons() & Qt::RightButton))
+}
+
+bool VideoPlayer::nativeEvent(const QByteArray &eventType, void *message, qintptr *result)
+{
+#if defined(Q_OS_WIN)
+    MSG* msg = static_cast<MSG*>(message);
+    switch (msg->message)
     {
+    // case WM_LBUTTONDOWN:
+    //     qDebug() << "Native WM_LBUTTONDOWN";
+    //     return true;
+    // case WM_LBUTTONUP:
+    //     qDebug() << "Native WM_LBUTTONUP";
+    //     return true;
+    case WM_RBUTTONDOWN:
+        mouseRightPressed = true;
+        setCursor(Qt::ClosedHandCursor);
+        oldMousePosition = {
+            static_cast<qreal>(GET_X_LPARAM(msg->lParam)),
+            static_cast<qreal>(GET_Y_LPARAM(msg->lParam))
+        };
+        qDebug() << oldMousePosition;
+        return true;
+    case WM_RBUTTONUP:
         mouseRightPressed = false;
+        setCursor(Qt::ArrowCursor);
+        return true;
+    default:
+        break;
     }
+    return false;
+#endif
+    return QWidget::nativeEvent(eventType, message, result);
 }
 
 void VideoPlayer::toggleFullscreen()

@@ -57,6 +57,7 @@ private:
     bool alreadyLeftClickedOnce;
     std::chrono::time_point<std::chrono::steady_clock> startShowChildren;
     void showEvent(QShowEvent*) override;
+    bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override;
 
     ControlPanel controlPanel;
     QMediaPlayer mediaPlayer;
@@ -77,7 +78,6 @@ private:
     float zoomFactor; // 1 to 2
     int frame_width;
     int frame_height;
-    QIcon icon;
     bool alwaysOnTop;
 public:
     static constexpr int initialWidth = 640;

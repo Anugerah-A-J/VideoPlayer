@@ -5,7 +5,6 @@ VideoPlayer
 [x] Loop button
 [x] Stay on top button
 [x] Icon only button
-[ ] Map and control panel background color
 
 [x] Double click on mouse left button to enter/exit fullscreen
 [x] Hold mouse left button to play 2x
