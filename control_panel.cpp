@@ -19,19 +19,23 @@ ControlPanel::ControlPanel(QWidget *parent):
     playButton.setEnabled(false);
     playButton.setStyleSheet("background: transparent; border: none;");
     playButton.setIcon(playIcon);
+    playButton.setToolTip("Play");
     playButton.setCursor(Qt::PointingHandCursor);
     // playButton.setAttribute(Qt::WA_TranslucentBackground); this doesn't work
 
     loopButton.setStyleSheet("background: transparent; border: none;");
     loopButton.setIcon(loopInactiveIcon);
+    loopButton.setToolTip("Enable loop");
     loopButton.setCursor(Qt::PointingHandCursor);
 
     alwaysOnTopButton.setStyleSheet("background: transparent; border: none;");
     alwaysOnTopButton.setIcon(alwaysOnTopInactiveIcon);
+    alwaysOnTopButton.setToolTip("Enable always on top");
     alwaysOnTopButton.setCursor(Qt::PointingHandCursor);
 
     fullscreenButton.setStyleSheet("background: transparent; border: none;");
     fullscreenButton.setIcon(fullscreenIcon);
+    fullscreenButton.setToolTip("Enter fullscreen");
     fullscreenButton.setCursor(Qt::PointingHandCursor);
     // fullscreenButton.setAttribute(Qt::WA_TranslucentBackground); this doesn't work
 

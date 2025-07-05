@@ -130,9 +130,11 @@ void VideoPlayer::mediaStateChanged(QMediaPlayer::PlaybackState state)
     {
     case QMediaPlayer::PlayingState:
         controlPanel.playButton.setIcon(controlPanel.pauseIcon);
+        controlPanel.playButton.setToolTip("Pause");
         break;
     default:
         controlPanel.playButton.setIcon(controlPanel.playIcon);
+        controlPanel.playButton.setToolTip("Play");
         controlPanel.show();
         setCursor(Qt::ArrowCursor);
         break;
@@ -646,11 +648,13 @@ void VideoPlayer::toggleFullscreen()
     case Qt::WindowFullScreen:
         setWindowState(beforeFullscreenState);
         controlPanel.fullscreenButton.setIcon(controlPanel.fullscreenIcon);
+        controlPanel.fullscreenButton.setToolTip("Enter fullscreen");
         break;
     default:
         beforeFullscreenState = windowState();
         setWindowState(Qt::WindowFullScreen);
         controlPanel.fullscreenButton.setIcon(controlPanel.exitFullscreenIcon);
+        controlPanel.fullscreenButton.setToolTip("Exit fullscreen");
         break;
     }
 }
@@ -662,10 +666,12 @@ void VideoPlayer::toggleLoop()
     case QMediaPlayer::Once:
         mediaPlayer.setLoops(QMediaPlayer::Infinite);
         controlPanel.loopButton.setIcon(controlPanel.loopAcvtiveIcon);
+        controlPanel.loopButton.setToolTip("Disable loop");
         break;
     case QMediaPlayer::Infinite:
         mediaPlayer.setLoops(QMediaPlayer::Once);
         controlPanel.loopButton.setIcon(controlPanel.loopInactiveIcon);
+        controlPanel.loopButton.setToolTip("Enable loop");
         break;
     }
 }
@@ -676,6 +682,7 @@ void VideoPlayer::toggleAlwaysOnTop()
     {
         alwaysOnTop = false;
         controlPanel.alwaysOnTopButton.setIcon(controlPanel.alwaysOnTopInactiveIcon);
+        controlPanel.alwaysOnTopButton.setToolTip("Enable always on top");
         setWindowFlags(windowFlags() &= ~Qt::WindowStaysOnTopHint);
         show();
     }
@@ -683,6 +690,7 @@ void VideoPlayer::toggleAlwaysOnTop()
     {
         alwaysOnTop = true;
         controlPanel.alwaysOnTopButton.setIcon(controlPanel.alwaysOnTopActiveIcon);
+        controlPanel.alwaysOnTopButton.setToolTip("Disable always on top");
         setWindowFlags(windowFlags() |= Qt::WindowStaysOnTopHint);
         show();
     }
