@@ -281,7 +281,6 @@ void VideoPlayer::timeEvent()
 void VideoPlayer::resizeEvent(QResizeEvent*)
 {
     fitAndCenterFrameRect();
-    qDebug() << "resizeEvent!";
 }
 
 void VideoPlayer::keyPressEvent(QKeyEvent* e)
@@ -332,37 +331,57 @@ void VideoPlayer::keyReleaseEvent(QKeyEvent* e)
 
 void VideoPlayer::fitAndCenterFrameRect()
 {
-    int window_width = width();
-    int window_height = height();
+    const int window_width = width();
+    const int window_height = height();
     fitWindowRect.setWidth(window_width);
     fitWindowRect.setHeight(window_height);
+    int fitWindowRect_new_x;
+    int fitWindowRect_new_y;
+    int fitWindowRect_new_width;
+    int fitWindowRect_new_height;
 
-    if (window_width * frame_height > frame_width * window_height) // window too wide
+    // if (window_width / window_height > frame_width / frame_height)
+    if (window_width * frame_height > frame_width * window_height)
     {
-        fitFrameRect.setY(0);
-        fitFrameRect.setHeight(window_height);
-        fitFrameRect.setWidth(fitFrameRect.height() * frame_width / frame_height);
-        fitFrameRect.setX((window_width - fitFrameRect.width()) / 2);
+        /*
+        +-----+-----+-----+
+        |     |video|     |
+        +-----+-----+-----+
+        */
+        fitWindowRect_new_height = window_height;
+        fitWindowRect_new_y = 0;
+        fitWindowRect_new_width = fitWindowRect_new_height * frame_width / frame_height;
+        fitWindowRect_new_x = (window_width - fitWindowRect_new_width) / 2;
     }
+    // if (window_width / window_height < frame_width / frame_height)
     else if (window_width * frame_height < frame_width * window_height)
     {
-        fitFrameRect.setX(0);
-        fitFrameRect.setWidth(window_width);
-        fitFrameRect.setHeight(fitFrameRect.width() * frame_height / frame_width);
-        fitFrameRect.setY((window_height - fitFrameRect.height()) / 2);
+        /*
+        +-----+
+        |     |
+        +-----+
+        |video|
+        +-----+
+        |     |
+        +-----+
+        */
+        fitWindowRect_new_width = window_width;
+        fitWindowRect_new_x = 0;
+        fitWindowRect_new_height = fitWindowRect_new_width * frame_height / frame_width;
+        fitWindowRect_new_y = (window_height - fitWindowRect_new_height) / 2;
     }
     else
     {
-        fitFrameRect.setX(0);
-        fitFrameRect.setY(0);
-        fitFrameRect.setWidth(window_width);
-        fitFrameRect.setHeight(window_height);
+        fitWindowRect_new_x = 0;
+        fitWindowRect_new_y = 0;
+        fitWindowRect_new_width = window_width;
+        fitWindowRect_new_height = window_height;
     }
+    fitFrameRect.setTopLeft({fitWindowRect_new_x, fitWindowRect_new_y});
+    fitFrameRect.setSize({fitWindowRect_new_width, fitWindowRect_new_height});
 
     frameRect = fitFrameRect;
     zoomFactor = 1;
-    qDebug() << "fitFrameRect : " << fitFrameRect;
-    qDebug() << "fitWindowRect: " << fitWindowRect;
 }
 
 void VideoPlayer::paintEvent(QPaintEvent*)
@@ -371,10 +390,13 @@ void VideoPlayer::paintEvent(QPaintEvent*)
 
     QVideoFrame::PaintOptions paintOptions;
     videoSink.videoFrame().paint(&painter, frameRect, paintOptions);
+    // painter.drawRect(0, 0, width(), height());
+    // painter.drawRect(fitFrameRect);
+    // painter.drawRect(frameRect);
 
     if (zoomFactor > 1)
     {
-        const float factor = static_cast<float>(thumbnailHeight) / fitWindowRect.height();
+        const float factor = static_cast<float>(thumbnailHeight) / fitWindowRect.height(); // use scale that makes fitWindowrect has same height with thumbnail
         constexpr int margin = 10;
 
         int fitFrameRectYStop = fitFrameRect.y() * factor + margin
@@ -510,11 +532,13 @@ void VideoPlayer::zoomFrameRect(const QPointF& anchor, float oldZoomFactor)
     int dx = anchor.x() - frameRect.x();
     int dy = anchor.y() - frameRect.y();
 
-    frameRect.setWidth(fitFrameRect.width() * zoomFactor);
-    frameRect.setHeight(fitFrameRect.height() * zoomFactor);
+    int frameRect_new_width = fitFrameRect.width() * zoomFactor;
+    int frameRect_new_height = fitFrameRect.height() * zoomFactor;
+    int frameRect_new_x = anchor.x() - dx * zoomFactor / oldZoomFactor;
+    int frameRect_new_y = anchor.y() - dy * zoomFactor / oldZoomFactor;
 
-    frameRect.setX(anchor.x() - dx * zoomFactor / oldZoomFactor);
-    frameRect.setY(anchor.y() - dy * zoomFactor / oldZoomFactor);
+    frameRect.setTopLeft({frameRect_new_x, frameRect_new_y});
+    frameRect.setSize({frameRect_new_width, frameRect_new_height});
 
     if (mediaPlayer.playbackState() == QMediaPlayer::PausedState)
         update();
@@ -535,76 +559,85 @@ void VideoPlayer::mousePressEvent(QMouseEvent* e)
     }
 }
 
+void VideoPlayer::mouseLeftReleased()
+{
+    const auto finish = std::chrono::steady_clock::now();
+    std::chrono::duration<float> clickDuration{finish - startMouseLeftPress};
+    std::chrono::duration<float> clickInterval{startMouseLeftPress - startMouseLeftRelease};
+
+    // std::cout << clickDuration.count() << " s\n";
+
+    mouseLeftPressed = false;
+
+    if (clickDuration.count() <= holdTreshold)
+    {
+        controlPanel.show();
+        setCursor(Qt::ArrowCursor);
+        startShowChildren = std::chrono::steady_clock::now();
+        play();
+
+        if (itsALeftClick && clickInterval.count() < doubleClickDelay && alreadyLeftClickedOnce)
+            toggleFullscreen();
+
+        itsALeftClick = true;
+    }
+
+    mediaPlayer.setPlaybackRate(1);
+
+    if (!alreadyLeftClickedOnce)
+        alreadyLeftClickedOnce = true;
+    startMouseLeftRelease = finish;
+}
+
+void VideoPlayer::mouseRightReleased()
+{
+    mouseRightPressed = false;
+    setCursor(Qt::ArrowCursor);
+}
+
 void VideoPlayer::mouseReleaseEvent(QMouseEvent* e)
 {
     if (e->button() == Qt::LeftButton)
     {
-        const auto finish = std::chrono::steady_clock::now();
-        std::chrono::duration<float> clickDuration{finish - startMouseLeftPress};
-        std::chrono::duration<float> clickInterval{startMouseLeftPress - startMouseLeftRelease};
-
-        // std::cout << clickDuration.count() << " s\n";
-
-        mouseLeftPressed = false;
-
-        if (clickDuration.count() <= holdTreshold)
-        {
-            controlPanel.show();
-            setCursor(Qt::ArrowCursor);
-            startShowChildren = std::chrono::steady_clock::now();
-            play();
-
-            if (itsALeftClick && clickInterval.count() < doubleClickDelay && alreadyLeftClickedOnce)
-                toggleFullscreen();
-
-            itsALeftClick = true;
-        }
-
-        mediaPlayer.setPlaybackRate(1);
-
-        if (!alreadyLeftClickedOnce)
-            alreadyLeftClickedOnce = true;
-        startMouseLeftRelease = finish;
+        mouseLeftReleased();
     }
     if (e->button() == Qt::RightButton)
     {
-        mouseRightPressed = false;
-        setCursor(Qt::ArrowCursor);
+        mouseRightReleased();
     }
 }
 
-bool VideoPlayer::nativeEvent(const QByteArray &eventType, void *message, qintptr *result)
-{
-#if defined(Q_OS_WIN)
-    MSG* msg = static_cast<MSG*>(message);
-    switch (msg->message)
-    {
-    // case WM_LBUTTONDOWN:
-    //     qDebug() << "Native WM_LBUTTONDOWN";
-    //     return true;
-    // case WM_LBUTTONUP:
-    //     qDebug() << "Native WM_LBUTTONUP";
-    //     return true;
-    case WM_RBUTTONDOWN:
-        mouseRightPressed = true;
-        setCursor(Qt::ClosedHandCursor);
-        oldMousePosition = {
-            static_cast<qreal>(GET_X_LPARAM(msg->lParam)),
-            static_cast<qreal>(GET_Y_LPARAM(msg->lParam))
-        };
-        qDebug() << oldMousePosition;
-        return true;
-    case WM_RBUTTONUP:
-        mouseRightPressed = false;
-        setCursor(Qt::ArrowCursor);
-        return true;
-    default:
-        break;
-    }
-    return false;
-#endif
-    return QWidget::nativeEvent(eventType, message, result);
-}
+// bool VideoPlayer::nativeEvent(const QByteArray &eventType, void *message, qintptr *result)
+// {
+// #if defined(Q_OS_WIN)
+//     MSG* msg = static_cast<MSG*>(message);
+//     switch (msg->message)
+//     {
+//     // case WM_LBUTTONDOWN:
+//     //     qDebug() << "Native WM_LBUTTONDOWN";
+//     //     return true;
+//     case WM_LBUTTONUP:
+//         mouseLeftReleased();
+//         return true;
+//     // case WM_RBUTTONDOWN:
+//     //     mouseRightPressed = true;
+//     //     setCursor(Qt::ClosedHandCursor);
+//     //     oldMousePosition = {
+//     //         static_cast<qreal>(GET_X_LPARAM(msg->lParam)),
+//     //         static_cast<qreal>(GET_Y_LPARAM(msg->lParam))
+//     //     };
+//     //     qDebug() << oldMousePosition;
+//     //     return false;
+//     case WM_RBUTTONUP:
+//         mouseRightReleased();
+//         return true;
+//     default:
+//         break;
+//     }
+//     // return false;
+// #endif
+//     return QWidget::nativeEvent(eventType, message, result);
+// }
 
 void VideoPlayer::toggleFullscreen()
 {

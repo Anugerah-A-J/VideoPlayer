@@ -16,7 +16,7 @@ VideoPlayer
 
 [-] Hold mouse right button and scroll mouse wheel to zoom in
 [-] Drag using mouse right button to pan when zoom scale > 100 %
-[ ] Frame rect size isn't right when switching from fullscreen mode to normal mode
+[x] Frame rect size isn't right when switching from fullscreen mode to normal mode
 
 [x] Hit right key to skip forward 7 sec.
 [x] Hit left key to skip backward 7 sec.

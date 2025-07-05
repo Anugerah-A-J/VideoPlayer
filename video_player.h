@@ -57,7 +57,9 @@ private:
     bool alreadyLeftClickedOnce;
     std::chrono::time_point<std::chrono::steady_clock> startShowChildren;
     void showEvent(QShowEvent*) override;
-    bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override;
+    // bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override;
+    void mouseLeftReleased();
+    void mouseRightReleased();
 
     ControlPanel controlPanel;
     QMediaPlayer mediaPlayer;
