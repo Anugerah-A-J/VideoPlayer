@@ -6,7 +6,7 @@ set(CMAKE_PREFIX_PATH
 )
 # set(CMAKE_INCLUDE_PATH "D:/c++/tools/msys64/ucrt64/include/opencv4")
 # set(CMAKE_BUILD_TYPE Debug)
-# set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Release)
 
 cmake_minimum_required(VERSION 3.16)
 project(vp LANGUAGES CXX)

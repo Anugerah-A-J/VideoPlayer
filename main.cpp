@@ -1,5 +1,8 @@
 /*
-cmake -G Ninja -B build --fresh
+cmake -G Ninja -B build/release --fresh
+ninja -C build/release
+
+"D:\cpp\lib\Qt\6.9.1\msvc2022_64\bin\windeployqt.exe" build\release\vp.exe
 */
 
 #include "video_player.h"
@@ -35,6 +38,10 @@ int main(int argc, char **argv)
             QUrl::AssumeLocalFile);
         player.load(url);
         player.run();
+    }
+    else
+    {
+        player.openFile();
     }
 
     player.show();

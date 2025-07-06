@@ -64,7 +64,7 @@ private:
     ControlPanel controlPanel;
     QMediaPlayer mediaPlayer;
     QVideoSink videoSink;
-    QPushButton openFileButton;
+    // QPushButton openFileButton;
     QAudioOutput audioOutput;
     QStackedLayout layout;
     QTimer timer;

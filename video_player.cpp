@@ -19,21 +19,21 @@ VideoPlayer::VideoPlayer(QWidget *parent):
     mouseRightPressed{false},
     itsALeftClick{false},
     alreadyLeftClickedOnce{false},
-    openFileButton{"Open"},
+    // openFileButton{"Open"},
     updateFrameTicksCount{0},
     zoomFactor{1},
     alwaysOnTop{false}
 {
-    openFileButton.setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    // openFileButton.setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 
     connect(&controlPanel.playButton, &QAbstractButton::clicked, this, &VideoPlayer::play);
     connect(&controlPanel.loopButton, &QAbstractButton::clicked, this, &VideoPlayer::toggleLoop);
     connect(&controlPanel.alwaysOnTopButton, &QAbstractButton::clicked, this, &VideoPlayer::toggleAlwaysOnTop);
     connect(&controlPanel.positionSlider, &QAbstractSlider::valueChanged, this, &VideoPlayer::setPosition);
     connect(&controlPanel.fullscreenButton, &QAbstractButton::clicked, this, &VideoPlayer::toggleFullscreen);
-    connect(&openFileButton, &QAbstractButton::clicked, this, &VideoPlayer::openFile);
+    // connect(&openFileButton, &QAbstractButton::clicked, this, &VideoPlayer::openFile);
 
-    layout.addWidget(&openFileButton);
+    // layout.addWidget(&openFileButton);
     layout.addWidget(&controlPanel);
     layout.setStackingMode(QStackedLayout::StackAll);
     setLayout(&layout);
@@ -90,7 +90,7 @@ void VideoPlayer::openFile()
     {
         load(fileDialog.selectedUrls().constFirst());
         play();
-        openFileButton.hide();
+        // openFileButton.hide();
         controlPanel.show();
         setCursor(Qt::ArrowCursor);
     }
@@ -99,7 +99,7 @@ void VideoPlayer::openFile()
 void VideoPlayer::run()
 {
     play();
-    openFileButton.hide();
+    // openFileButton.hide();
     controlPanel.show();
     setCursor(Qt::ArrowCursor);
 }
@@ -244,8 +244,8 @@ void VideoPlayer::setPosition(int position)
 
 void VideoPlayer::timeEvent()
 {
-    if (openFileButton.isVisible())
-        return;
+    // if (openFileButton.isVisible())
+    //     return;
 
     const auto finish = std::chrono::steady_clock::now();
     std::chrono::duration<float> duration;
